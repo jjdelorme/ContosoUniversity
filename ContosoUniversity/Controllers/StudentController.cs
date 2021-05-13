@@ -6,9 +6,10 @@ using System.Linq;
 using System.Net;
 using ContosoUniversity.DAL;
 using ContosoUniversity.Models;
-using PagedList;
+using PagedList.Core;
 using System.Data.Entity.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace ContosoUniversity.Controllers
 {
@@ -68,12 +69,12 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new StatusCodeResult(HttpStatusCode.BadRequest);
+                return new BadRequestResult();
             }
             Student student = db.Students.Find(id);
             if (student == null)
             {
-                return HttpNotFound();
+                return new NotFoundResult();
             }
             return View(student);
         }
@@ -89,7 +90,7 @@ namespace ContosoUniversity.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "LastName, FirstMidName, EnrollmentDate")]Student student)
+        public ActionResult Create([Bind("LastName, FirstMidName, EnrollmentDate")]Student student)
         {
             try
             {
@@ -114,12 +115,12 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new StatusCodeResult(HttpStatusCode.BadRequest);
+                return new BadRequestResult();
             }
             Student student = db.Students.Find(id);
             if (student == null)
             {
-                return HttpNotFound();
+                return new NotFoundResult();
             }
             return View(student);
         }
@@ -129,15 +130,14 @@ namespace ContosoUniversity.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public ActionResult EditPost(int? id)
+        public async Task<ActionResult> EditPost(int? id)
         {
             if (id == null)
             {
-                return new StatusCodeResult(HttpStatusCode.BadRequest);
+                return new BadRequestResult();
             }
             var studentToUpdate = db.Students.Find(id);
-            if (TryUpdateModel(studentToUpdate, "",
-               new string[] { "LastName", "FirstMidName", "EnrollmentDate" }))
+            if (await TryUpdateModelAsync(studentToUpdate))
             {
                 try
                 {
@@ -159,7 +159,7 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new StatusCodeResult(HttpStatusCode.BadRequest);
+                return new BadRequestResult();
             }
             if (saveChangesError.GetValueOrDefault())
             {
@@ -168,7 +168,7 @@ namespace ContosoUniversity.Controllers
             Student student = db.Students.Find(id);
             if (student == null)
             {
-                return HttpNotFound();
+                return new NotFoundResult();
             }
             return View(student);
         }

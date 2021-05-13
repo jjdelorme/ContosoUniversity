@@ -9,6 +9,7 @@ using ContosoUniversity.Models;
 using ContosoUniversity.ViewModels;
 using System.Data.Entity.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace ContosoUniversity.Controllers
 {
@@ -59,12 +60,12 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new StatusCodeResult(HttpStatusCode.BadRequest);
+                return new BadRequestResult();
             }
             Instructor instructor = db.Instructors.Find(id);
             if (instructor == null)
             {
-                return HttpNotFound();
+                return new NotFoundResult();
             }
             return View(instructor);
         }
@@ -79,7 +80,7 @@ namespace ContosoUniversity.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "LastName,FirstMidName,HireDate,OfficeAssignment")]Instructor instructor, string[] selectedCourses)
+        public ActionResult Create([Bind("LastName,FirstMidName,HireDate,OfficeAssignment")]Instructor instructor, string[] selectedCourses)
         {
             if (selectedCourses != null)
             {
@@ -106,7 +107,7 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new StatusCodeResult(HttpStatusCode.BadRequest);
+                return new BadRequestResult();
             }
             Instructor instructor = db.Instructors
                 .Include(i => i.OfficeAssignment)
@@ -116,7 +117,7 @@ namespace ContosoUniversity.Controllers
             PopulateAssignedCourseData(instructor);
             if (instructor == null)
             {
-                return HttpNotFound();
+                return new NotFoundResult();
             }
             return View(instructor);
         }
@@ -142,11 +143,11 @@ namespace ContosoUniversity.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int? id, string[] selectedCourses)
+        public async Task<ActionResult> Edit(int? id, string[] selectedCourses)
         {
             if (id == null)
             {
-                return new StatusCodeResult(HttpStatusCode.BadRequest);
+                return new BadRequestResult();
             }
             var instructorToUpdate = db.Instructors
                .Include(i => i.OfficeAssignment)
@@ -154,8 +155,7 @@ namespace ContosoUniversity.Controllers
                .Where(i => i.ID == id)
                .Single();
 
-            if (TryUpdateModel(instructorToUpdate, "",
-               new string[] { "LastName", "FirstMidName", "HireDate", "OfficeAssignment" }))
+            if (await TryUpdateModelAsync(instructorToUpdate))
             {
                 try
                 {
@@ -216,12 +216,12 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new StatusCodeResult(HttpStatusCode.BadRequest);
+                return new BadRequestResult();
             }
             Instructor instructor = db.Instructors.Find(id);
             if (instructor == null)
             {
-                return HttpNotFound();
+                return new NotFoundResult();
             }
             return View(instructor);
         }

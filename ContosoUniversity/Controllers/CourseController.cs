@@ -8,6 +8,8 @@ using ContosoUniversity.DAL;
 using ContosoUniversity.Models;
 using System.Data.Entity.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Threading.Tasks;
 
 namespace ContosoUniversity.Controllers
 {
@@ -35,12 +37,12 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new StatusCodeResult(HttpStatusCode.BadRequest);
+                return new BadRequestResult();
             }
             Course course = db.Courses.Find(id);
             if (course == null)
             {
-                return HttpNotFound();
+                return new NotFoundResult();
             }
             return View(course);
         }
@@ -54,7 +56,7 @@ namespace ContosoUniversity.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "CourseID,Title,Credits,DepartmentID")]Course course)
+        public ActionResult Create([Bind("CourseID,Title,Credits,DepartmentID")]Course course)
         {
             try
             {
@@ -78,12 +80,12 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new StatusCodeResult(HttpStatusCode.BadRequest);
+                return new BadRequestResult();
             }
             Course course = db.Courses.Find(id);
             if (course == null)
             {
-                return HttpNotFound();
+                return new NotFoundResult();
             }
             PopulateDepartmentsDropDownList(course.DepartmentID);
             return View(course);
@@ -91,15 +93,14 @@ namespace ContosoUniversity.Controllers
 
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public ActionResult EditPost(int? id)
+        public async Task<ActionResult> EditPost(int? id)
         {
             if (id == null)
             {
-                return new StatusCodeResult(HttpStatusCode.BadRequest);
+                return BadRequest();
             }
             var courseToUpdate = db.Courses.Find(id);
-            if (TryUpdateModel(courseToUpdate, "",
-               new string[] { "Title", "Credits", "DepartmentID" }))
+            if (await TryUpdateModelAsync(courseToUpdate))
             {
                 try
                 {
@@ -131,12 +132,12 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new StatusCodeResult(HttpStatusCode.BadRequest);
+                return new BadRequestResult();
             }
             Course course = db.Courses.Find(id);
             if (course == null)
             {
-                return HttpNotFound();
+                return new NotFoundResult();
             }
             return View(course);
         }

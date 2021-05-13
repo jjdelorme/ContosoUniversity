@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace ContosoUniversity
 {
@@ -38,7 +40,6 @@ namespace ContosoUniversity
                 {
                     options.UseMemberCasing();
                 });
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

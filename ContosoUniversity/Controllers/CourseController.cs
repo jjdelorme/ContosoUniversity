@@ -4,11 +4,10 @@ using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
-using System.Web.Mvc;
 using ContosoUniversity.DAL;
 using ContosoUniversity.Models;
 using System.Data.Entity.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ContosoUniversity.Controllers
 {
@@ -36,7 +35,7 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return new StatusCodeResult(HttpStatusCode.BadRequest);
             }
             Course course = db.Courses.Find(id);
             if (course == null)
@@ -79,7 +78,7 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return new StatusCodeResult(HttpStatusCode.BadRequest);
             }
             Course course = db.Courses.Find(id);
             if (course == null)
@@ -96,7 +95,7 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return new StatusCodeResult(HttpStatusCode.BadRequest);
             }
             var courseToUpdate = db.Courses.Find(id);
             if (TryUpdateModel(courseToUpdate, "",
@@ -132,7 +131,7 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return new StatusCodeResult(HttpStatusCode.BadRequest);
             }
             Course course = db.Courses.Find(id);
             if (course == null)

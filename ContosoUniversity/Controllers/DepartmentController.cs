@@ -5,11 +5,10 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Net;
-using System.Web;
-using System.Web.Mvc;
 using ContosoUniversity.DAL;
 using ContosoUniversity.Models;
 using System.Data.Entity.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ContosoUniversity.Controllers
 {
@@ -29,7 +28,7 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return new StatusCodeResult(HttpStatusCode.BadRequest);
             }
 
             // Commenting out original code to show how to use a raw SQL query.
@@ -76,7 +75,7 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return new StatusCodeResult(HttpStatusCode.BadRequest);
             }
             Department department = await db.Departments.FindAsync(id);
             if (department == null)
@@ -98,7 +97,7 @@ namespace ContosoUniversity.Controllers
 
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return new StatusCodeResult(HttpStatusCode.BadRequest);
             }
 
             var departmentToUpdate = await db.Departments.FindAsync(id);
@@ -170,7 +169,7 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return new StatusCodeResult(HttpStatusCode.BadRequest);
             }
             Department department = await db.Departments.FindAsync(id);
             if (department == null)

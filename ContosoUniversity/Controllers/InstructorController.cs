@@ -4,12 +4,11 @@ using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
-using System.Web.Mvc;
 using ContosoUniversity.DAL;
 using ContosoUniversity.Models;
 using ContosoUniversity.ViewModels;
 using System.Data.Entity.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ContosoUniversity.Controllers
 {
@@ -60,7 +59,7 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return new StatusCodeResult(HttpStatusCode.BadRequest);
             }
             Instructor instructor = db.Instructors.Find(id);
             if (instructor == null)
@@ -107,7 +106,7 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return new StatusCodeResult(HttpStatusCode.BadRequest);
             }
             Instructor instructor = db.Instructors
                 .Include(i => i.OfficeAssignment)
@@ -147,7 +146,7 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return new StatusCodeResult(HttpStatusCode.BadRequest);
             }
             var instructorToUpdate = db.Instructors
                .Include(i => i.OfficeAssignment)
@@ -217,7 +216,7 @@ namespace ContosoUniversity.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return new StatusCodeResult(HttpStatusCode.BadRequest);
             }
             Instructor instructor = db.Instructors.Find(id);
             if (instructor == null)

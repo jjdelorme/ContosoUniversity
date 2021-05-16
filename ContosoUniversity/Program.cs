@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Google.Cloud.Diagnostics.AspNetCore;
 
 namespace ContosoUniversity
 {
@@ -23,9 +24,25 @@ namespace ContosoUniversity
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration(AddSecretConfig)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    string projectId = Environment.GetEnvironmentVariable("GOOGLE_CLOUD_PROJECT");
+                    webBuilder.UseGoogleDiagnostics(projectId: projectId);
                     webBuilder.UseStartup<Startup>();
                 });
+
+        private static void AddSecretConfig(HostBuilderContext context, 
+            IConfigurationBuilder config) 
+        {
+            const string secretsPath = "secrets";
+            
+            var secretFileProvider = context.HostingEnvironment.ContentRootFileProvider
+                .GetDirectoryContents(secretsPath);
+            
+            if (secretFileProvider.Exists)
+                foreach (var secret in secretFileProvider)
+                    config.AddJsonFile(secret.PhysicalPath, false, true);
+        }
     }
 }

@@ -15,7 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.FileProviders;
-using System.IO;
+using ContosoUniversity.DAL;
 
 namespace ContosoUniversity
 {
@@ -40,6 +40,10 @@ namespace ContosoUniversity
                 {
                     options.UseMemberCasing();
                 });
+            
+            services.AddScoped<SchoolContext>(_ => 
+                new SchoolContext(Configuration.GetConnectionString("SchoolContext"))
+                );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,7 +53,7 @@ namespace ContosoUniversity
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            
             app.UseStaticFiles();
             app.UseRouting();
             app.UseAuthorization();

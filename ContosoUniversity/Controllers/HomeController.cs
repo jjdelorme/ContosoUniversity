@@ -9,7 +9,12 @@ namespace ContosoUniversity.Controllers
 {
     public class HomeController : Controller
     {
-        private SchoolContext db = new SchoolContext();
+        private SchoolContext db = null;
+        
+        public HomeController(SchoolContext db)
+        {
+            this.db = db;
+        }
 
         public ActionResult Index()
         {

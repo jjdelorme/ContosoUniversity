@@ -15,7 +15,12 @@ namespace ContosoUniversity.Controllers
 {
     public class DepartmentController : Controller
     {
-        private SchoolContext db = new SchoolContext();
+        private SchoolContext db = null;
+
+        public DepartmentController(SchoolContext db)
+        {
+            this.db = db;
+        }
 
         // GET: Department
         public async Task<ActionResult> Index()

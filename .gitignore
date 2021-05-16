@@ -1,0 +1,4 @@
+.vscode/
+**/obj/
+**/wwwroot/
+service_account.json

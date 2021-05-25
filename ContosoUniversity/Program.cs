@@ -27,8 +27,10 @@ namespace ContosoUniversity
                 .ConfigureAppConfiguration(AddSecretConfig)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    string projectId = Environment.GetEnvironmentVariable("GOOGLE_CLOUD_PROJECT");
-                    webBuilder.UseGoogleDiagnostics(projectId: projectId);
+                    if (webBuilder.GetSetting("ENVIRONMENT") == "Production")
+                    {
+                        webBuilder.UseGoogleDiagnostics();
+                    }
                     webBuilder.UseStartup<Startup>();
                 });
 

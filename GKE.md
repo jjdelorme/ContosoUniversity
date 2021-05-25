@@ -1,5 +1,15 @@
 # Create a GKE Cluster with Windows Node Pool 
 
+NOTE: This code relies on running from the `start` tag.  In order to walk through these steps, open this up in a browser to follow along and then use these steps:
+
+```cmd
+# Clone the repository
+git clone https://github.com/jjdelorme/contosouniversity
+
+# Checkout the 'start' tag, which is the original .NET Framework 4.5 application.
+git checkout start
+```
+
 ## Create the GKE cluster
 
 Following these [instructions](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-cluster-windows), note that you must create the cluster from gcloud rather than the console UI because the `--enable-ip-alias` is not available there.
@@ -20,6 +30,8 @@ gcloud container clusters get-credentials jasondel-standard
 ```
 
 ## Create the Windows Container Dockerfile
+The application is written in .NET Framework 4.5, but will run in a .NET Framework 4.7.2 runtime environment as depicted below.
+
 ```dockerfile
 # escape=`
 

@@ -5,15 +5,15 @@ This sample walks through a complete tutorial of migrating [Contoso University](
 Microsoft [documentation](https://docs.microsoft.com/en-us/aspnet/core/migration/proper-to-2x/?view=aspnetcore-5.0) offers detailed guidance migrating from ASP.NET to ASP.NET Core and this is not meant to be a replacement, but this demonstrates a practical, end-to-end walkthrough.
 
 ### Table of Contents  
-* [Prerequisites](##Prerequisites)   
-* [Setup](##Setup) 
-* [Migrate](##Migrate)
-* [Refactor](##Refactor)
-* [Deploying to Google Cloud](##Deploying-to-Google-Cloud)
-* [Using .NET 5 Configuration](##Using-.NET-5-Configuration)
-* [Using Google Secret Manager](##Using-Google-Secret-Manager)
-* [Adding Google Cloud Logging & Monitoring](##Adding-Google-Cloud-Logging-&-Monitoring)
-* [Putting it all together](##Putting-it-all-together)
+* [Prerequisites](#Prerequisites)   
+* [Setup](#Setup) 
+* [Migrate](#Migrate)
+* [Refactor](#Refactor)
+* [Deploying to Google Cloud](#Deploying-to-Google-Cloud)
+* [Using .NET 5 Configuration](#Using-.NET-5-Configuration)
+* [Using Google Secret Manager](#Using-Google-Secret-Manager)
+* [Adding Google Cloud Logging & Monitoring](#Adding-Google-Cloud-Logging-&-Monitoring)
+* [Putting it all together](#Putting-it-all-together)
 
 ## Prerequisites
 

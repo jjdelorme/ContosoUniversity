@@ -5,4 +5,4 @@ steps:
   - --versions
   - 'ltsc2019'
   - --container-image-name
-  - 'gcr.io/$PROJECT_ID/contosouniversity:v1-ltsc2019'
+  - 'gcr.io/$PROJECT_ID/contosouniversity-windows:v1'

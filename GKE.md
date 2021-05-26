@@ -1,51 +1,96 @@
 # Create a GKE Cluster with Windows Node Pool 
 
-NOTE: This code relies on running from the `start` tag.  In order to walk through these steps, open this up in a browser to follow along and then use these steps:
-
-```cmd
-# Clone the repository
-git clone https://github.com/jjdelorme/contosouniversity
-
-# Checkout the 'start' tag, which is the original .NET Framework 4.5 application.
-git checkout start
-```
-
 ## Create the GKE cluster
 
 Following these [instructions](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-cluster-windows), note that you must create the cluster from gcloud rather than the console UI because the `--enable-ip-alias` is not available there.
 
 ```cmd
-gcloud container clusters create jasondel-standard \
+export CLUSTER_NAME=your_cluster_name_here
+
+gcloud container clusters create $CLUSTER_NAME \
     --enable-ip-alias \
     --num-nodes=1 \
     --release-channel regular
 
 gcloud container node-pools create windows-ltsc-pool \
-    --cluster=jasondel-standard \
+    --cluster=$CLUSTER_NAME \
     --image-type=WINDOWS_LTSC \
     --no-enable-autoupgrade \
     --machine-type=n1-standard-2
 
-gcloud container clusters get-credentials jasondel-standard    
+gcloud container clusters get-credentials $CLUSTER_NAME
+```
+
+## Get the code
+
+NOTE: This code relies on running from the `gkewindows` branch.  In order to walk through these steps, open this up in a browser to follow along and then use these steps:
+
+```cmd
+# Clone the repository
+git clone https://github.com/jjdelorme/contosouniversity
+
+# Checkout the 'gkewindows' branch, which is the original (unconverted) .NET Framework 4.5 application.
+git checkout gkewindows
+```
+
+## Connection Strings
+Note that the database connection string is stored as a K8S secret.  To reference this secret with no code changes, use the following ```configSource``` in the Web.config file.  Notice the path is relative to the deployment, a subdirectory in the deployment path.
+
+```xml
+<configuration>
+  ...
+  <connectionStrings configSource="secret\connectionStrings.config"/>
+  ...
+</configuration>
+```
+
+The secret is created as such from a file that contains just the connectionStrings section.  Create a file named `connectionstrings.config`:
+
+```xml
+<connectionStrings>
+    <add name="SchoolContext"
+         connectionString="Data Source=SERVER-NAME;User=MYUSER;Password=MYPASSWORD;Initial Catalog=ContosoUniversity;"
+        providerName="System.Data.SqlClient" />
+</connectionStrings>
+```
+
+Now create the secret from this file using the following command:
+
+```bash
+kubectl create secret generic connection-strings --from-file=connectionStrings.config
+```
+
+The deployment in `deploy.yaml` references this with the mount path, a fully qualified subdirectory of the deployment (relative to C:\).  Specifying a root directory like /secret for example is at risk of IIS not having permissions to read and will through a 500 error.  Additionally specifying the actual path of deployment (not a subdirectory) will cause it to overwrite the whole deployment directory.
+
+```yaml
+        volumeMounts: 
+        - name: connection-strings
+          mountPath: "/inetpub/wwwroot/secret"
+          readOnly: true        
+...
+      volumes:
+      - name: connection-strings
+        secret:
+          secretName: connection-strings
 ```
 
 ## Create the Windows Container Dockerfile
-The application is written in .NET Framework 4.5, but will run in a .NET Framework 4.7.2 runtime environment as depicted below.
+The application is written in .NET Framework 4.5, but will run in a .NET Framework 4.8 runtime environment as depicted below.
 
 ```dockerfile
 # escape=`
 
-FROM mcr.microsoft.com/dotnet/framework/sdk:4.7.2-windowsservercore-ltsc2019 AS build
+FROM mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2019 AS build
 WORKDIR /source
 COPY . /source
 
-RUN msbuild -t:restore -p:RestorePackagesConfig=true
+RUN msbuild ContosoUniversity.sln /t:restore /p:RestorePackagesConfig=true
 RUN msbuild /p:Configuration=Release `
 	/t:WebPublish `
 	/p:WebPublishMethod=FileSystem `
-	/p:publishUrl=C:\Deploy
+	/p:publishUrl=C:\deploy
 
-FROM mcr.microsoft.com/dotnet/framework/aspnet:4.7.2 AS runtime
+FROM mcr.microsoft.com/dotnet/framework/aspnet:4.8 AS runtime
 COPY --from=build /deploy /inetpub/wwwroot
 
 EXPOSE 80
@@ -81,11 +126,28 @@ steps:
   - --versions
   - 'ltsc2019'
   - --container-image-name
-  - 'gcr.io/$PROJECT_ID/contosouniversity:v1-ltsc2019'
-  ```
+  - 'gcr.io/$PROJECT_ID/contosouniversity-windows:v1-ltsc2019'
+```
 
 Now use Cloud Build to build and push the Windows Container.
 
   ```cmd
   gcloud builds submit
   ```
+
+## Deploy to GKE
+
+This is probably easiest done from the Google Cloud Shell.  If you did the earlier steps in cloud shell, the PROJECT env variable will already be set.  
+
+```bash
+export PROJECT=$(gcloud info --format='value(config.project)')
+
+envsubst < deploy.yaml | kubectl apply -f -
+
+```
+The above script uses the `envsubst` tool to substitute `${PROJECT}` with your project which is obtained in the first line.  The output of that script is applied to your GKE cluster.  You can see the relevant placeholder in the `deploy.yaml` file below:
+
+```yaml
+      containers:
+      - image: gcr.io/${PROJECT}/contosouniversity-windows:v1-ltsc2019
+```

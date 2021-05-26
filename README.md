@@ -1,8 +1,8 @@
 # Migrating ASP.NET MVC to ASP.NET Core MVC on GCP
 
-This sample walks through a complete tutorial of migrating [Contoso University](https://docs.microsoft.com/en-us/aspnet/mvc/overview/getting-started/getting-started-with-ef-using-mvc/creating-an-entity-framework-data-model-for-an-asp-net-mvc-application) a traditional Microsoft ASP.NET Framework MVC + Entity Framework sample that was built with .NET Framework.  The goal of this tutorial will be to convert this application to .NET 5 in a Linux container on [Google Cloud Run](https://cloud.google.com/run) a fully serverless environment with a managed database in [Cloud SQL for SQL Server](https://cloud.google.com/sql-server). The application uses Google Diagnostics and Cloud Logging for ASP.NET Core as well as Google Secret Manager and demonstrates using Cloud Build to build the container and deploy to Cloud Run.
+This sample walks through a complete tutorial of migrating [Contoso University](https://docs.microsoft.com/en-us/aspnet/mvc/overview/getting-started/getting-started-with-ef-using-mvc/creating-an-entity-framework-data-model-for-an-asp-net-mvc-application) a traditional Microsoft ASP.NET Framework MVC + Entity Framework sample that was built with .NET Framework.  The goal of this tutorial will be to convert this application to .NET 5 and run in a Linux container on [Google Cloud Run](https://cloud.google.com/run), a fully serverless environment using [Cloud SQL for SQL Server](https://cloud.google.com/sql-server), a managed database in Google Cloud. The application uses Google Diagnostics and Cloud Logging for ASP.NET Core as well as Google Secret Manager and demonstrates using Cloud Build to build the container and automatically deploy to Cloud Run.
 
-Microsoft [documentation](https://docs.microsoft.com/en-us/aspnet/core/migration/proper-to-2x/?view=aspnetcore-5.0) offers guidance on certain aspects of migrating from ASP.NET to ASP.NET Core and this is not meant to be a replacement, but an end-to-end walkthrough.
+Microsoft [documentation](https://docs.microsoft.com/en-us/aspnet/core/migration/proper-to-2x/?view=aspnetcore-5.0) offers detailed guidance migrating from ASP.NET to ASP.NET Core and this is not meant to be a replacement, but this demonstrates a practical, end-to-end walkthrough.
 
 ### Table of Contents  
 <!-- PLACEHOLDER -->
@@ -14,7 +14,7 @@ Microsoft [documentation](https://docs.microsoft.com/en-us/aspnet/core/migration
 
 1. (Optional) [Install Docker](https://docs.docker.com/docker-for-windows/install/) on your local machine.  Don't worry if you cannot install Docker in your environment, we have a solution for you!
 
-1. Install [].NET 5 SDK](https://dotnet.microsoft.com/download/dotnet/5.0)
+1. Install [.NET 5 SDK](https://dotnet.microsoft.com/download/dotnet/5.0)
 
 1. Download and install the Google Cloud SDK following these [instructions](https://cloud.google.com/sdk/docs/install) or clone this repo.
 

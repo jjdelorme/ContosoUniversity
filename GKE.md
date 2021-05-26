@@ -44,7 +44,7 @@ Note that the database connection string is stored as a K8S secret.  To referenc
 </configuration>
 ```
 
-The secret is created as such from a file that contains just the connectionStrings section, i.e.:
+The secret is created as such from a file that contains just the connectionStrings section.  Create a file named `connectionstrings.config`:
 
 ```xml
 <connectionStrings>
@@ -58,7 +58,7 @@ The secret is created as such from a file that contains just the connectionStrin
 kubectl create secret generic connection-strings --from-file=connectionStrings.config
 ```
 
-The deployment then references this with below.  NOTE the mount path is a fully qualified subdirectory of the deployment (relative to C:\).  Specifying a root directory like /secret for example is at risk of IIS not having permissions to read and will through a 500 error.  Additionally specifying the actual path of deployment (not a subdirectory) will cause it to overwrite the whole deployment directory.
+The deployment in `deploy.yaml` references this with the mount path, a fully qualified subdirectory of the deployment (relative to C:\).  Specifying a root directory like /secret for example is at risk of IIS not having permissions to read and will through a 500 error.  Additionally specifying the actual path of deployment (not a subdirectory) will cause it to overwrite the whole deployment directory.
 
 ```yaml
         volumeMounts: 
@@ -73,7 +73,7 @@ The deployment then references this with below.  NOTE the mount path is a fully 
 ```
 
 ## Create the Windows Container Dockerfile
-The application is written in .NET Framework 4.5, but will run in a .NET Framework 4.7.2 runtime environment as depicted below.
+The application is written in .NET Framework 4.5, but will run in a .NET Framework 4.8 runtime environment as depicted below.
 
 ```dockerfile
 # escape=`

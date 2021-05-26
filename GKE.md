@@ -54,6 +54,8 @@ The secret is created as such from a file that contains just the connectionStrin
 </connectionStrings>
 ```
 
+Now create the secret from this file using the following command:
+
 ```bash
 kubectl create secret generic connection-strings --from-file=connectionStrings.config
 ```
@@ -86,7 +88,7 @@ RUN msbuild ContosoUniversity.sln /t:restore /p:RestorePackagesConfig=true
 RUN msbuild /p:Configuration=Release `
 	/t:WebPublish `
 	/p:WebPublishMethod=FileSystem `
-	/p:publishUrl=C:\Deploy
+	/p:publishUrl=C:\deploy
 
 FROM mcr.microsoft.com/dotnet/framework/aspnet:4.8 AS runtime
 COPY --from=build /deploy /inetpub/wwwroot

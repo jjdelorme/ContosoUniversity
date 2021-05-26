@@ -5,8 +5,15 @@ This sample walks through a complete tutorial of migrating [Contoso University](
 Microsoft [documentation](https://docs.microsoft.com/en-us/aspnet/core/migration/proper-to-2x/?view=aspnetcore-5.0) offers detailed guidance migrating from ASP.NET to ASP.NET Core and this is not meant to be a replacement, but this demonstrates a practical, end-to-end walkthrough.
 
 ### Table of Contents  
-<!-- PLACEHOLDER -->
-[Placeholder](#headers)  
+* [Prerequisites](##Prerequisites)   
+* [Setup](##Setup) 
+* [Migrate](##Migrate)
+* [Refactor](##Refactor)
+* [Deploying to Google Cloud](##Deploying-to-Google-Cloud)
+* [Using .NET 5 Configuration](##Using-.NET-5-Configuration)
+* [Using Google Secret Manager](##Using-Google-Secret-Manager)
+* [Adding Google Cloud Logging & Monitoring](##Adding-Google-Cloud-Logging-&-Monitoring)
+* [Putting it all together](##Putting-it-all-together)
 
 ## Prerequisites
 
@@ -18,27 +25,17 @@ Microsoft [documentation](https://docs.microsoft.com/en-us/aspnet/core/migration
 
 1. Download and install the Google Cloud SDK following these [instructions](https://cloud.google.com/sdk/docs/install) or clone this repo.
 
-<!-- Can we do away with these?
-1.` Install Bundler & Minifier tool from `here <https://marketplace.visualstudio.com/items?itemName=MadsKristensen.BundlerMinifier&ssr=false#review-details>`_. The tool helps a lot when creating the bundleconfig.json.
+## Setup
 
-// Do we need this? I don't think so.
-//`5.` Download and install the .NET Portability Analyzer extension for Visual Studio from `here <https://dotnet.microsoft.com/platform/upgrade-assistant>`_.
+[Download the original Microsoft sample](https://webpifeed.blob.core.windows.net/webpifeed/Partners/ASP.NET%20MVC%20Application%20Using%20Entity%20Framework%20Code%20First.zip) and unzip it to a local directory, or clone this repository and checkout the `start` tag.
 
-`7.` Open Analyze -> Portability Analyzer settings. Select the versions you want to target:
+```cmd
+git clone https://github.com/jjdelorme/ContosoUniversity
 
-.. figure:: _figures/image3.png
--->
+git checkout start
+```
 
-## Download and run the starting sample
-
-1. [Download the original Microsoft sample](https://webpifeed.blob.core.windows.net/webpifeed/Partners/ASP.NET%20MVC%20Application%20Using%20Entity%20Framework%20Code%20First.zip)
-
-1. Unzip it to a local directory and open `ContosoUniversity.sln` with Visual Studio 2019.
-
-1. To restore from the Visual Studio SDK Command Prompt:
-    ```cmd
-    msbuild -t:restore -p:RestorePackagesConfig=true
-    ```
+Open `ContosoUniversity.sln` with Visual Studio 2019.
 
 ### Setup Cloud SQL for SQL Server
 
@@ -77,9 +74,9 @@ Confirm the application builds and functions as desired before staring the migra
 
 1. Verify it can access the database by clicking on one of the tabs, i.e. Departments.
 
-## Migrate to .NET 5 using the Upgrade Assistant
+## Migrate
 
-We are going to use the [.NET Upgrade Assistant](https://dotnet.microsoft.com/platform/upgrade-assistant/) to automate some steps of the migration.  This will get us about 80% of the way there for this sample app and it is a good starting point for most .NET Framework to .NET 5 upgrades. 
+We are going to use the [.NET Upgrade Assistant](https://dotnet.microsoft.com/platform/upgrade-assistant/) to automate some steps of the migrating to .NET 5.  This will get us about 80% of the way there for this sample app and it is a good starting point for most .NET Framework to .NET 5 upgrades. 
 
 1. Close your Visual Studio instance
 
@@ -123,7 +120,7 @@ The output of the Upgrade Assistant will be the converted .NET 5 project.  A sum
 
 ```
 
-## Manual Migration Steps
+## Refactor
 
 We'll now need to make some manual changes to get the application to compile.  At this point many developers choose to switch to [Visual Studio Code](https://code.visualstudio.com/) which is much lighter weight and a rich, open source IDE for developing in .NET Core.  You can of course continue to use Visual Studio if you choose.
 
@@ -334,7 +331,7 @@ info: Microsoft.Hosting.Lifetime[0]
 
 You should now have your fully migrated .NET 5 application up and running again, connected to Google Cloud SQL for SQL Server just as you did with the .NET Framework version.  Go ahead and poke around in the application to test the functionality more thoroughly.
 
-## Deploying the app to Google Cloud
+## Deploying to Google Cloud
 
 Another great benefit of moving to .NET 5 is that you can now run the application in a lightweight Linux container.  With Linux containers, you can avoid the `it works on my machine` paradigm by encapsulting all of your dependencies in a small, portable format that can be run anywhere that can host a docker container, including Kubernetes or fully serverless platforms like Google Cloud Run.
 
@@ -376,10 +373,6 @@ This will run the application and expose port 8080 to the localhost, so that you
 
 ### Using Cloud Build
 
-!!!
-[TODO]: Need to enable the APIs and set permissions.
-!!!
-
 Rather than running Docker locally, you can use the managed Google Cloud Build service to build the container and automatically push it to your container registry:
 
 1. Get your Google Cloud Project ID using the `gcloud` tool, for example:
@@ -410,7 +403,7 @@ gcloud run deploy --image gcr.io/_my-sample-project_/contosouniversity:v1 --plat
 
 For a complete tutorial on Cloud Run with C# see [this](https://cloud.google.com/run/docs/quickstarts/build-and-deploy/c-sharp).
 
-## Removing Web.config and using .NET 5 Configuration
+## Using .NET 5 Configuration
 
 So far we've ported the application to .NET 5, leveraged serverless Cloud Build to build a container and we've deployed to Cloud Run.  The application is connecting to Cloud SQL for SQL Server for it's backing store but there is one big problem with this setup right now.  `EntityFramework` is still using `Web.config` to load the connection string to your database, whereas the rest of ASP.NET Core now relies on a pluggable configuration provider.
 
@@ -479,7 +472,7 @@ The best pattern to use a common service like the database context in ASP.NET Co
 
 1. It's now time to test the application again.  Go ahead and `dotnet run` to ensure the application still connects to the database.
 
-###  Using Google Secret Manager
+## Using Google Secret Manager
 
 The other big problem is that `Web.config` and now our `appsettings.json` file are in plain text being shipped around with your source code.  To fix this we're going to use Google Secret Manager to securely store the connection string.  If you are using Visual Studio Code at this point, you can use the [Cloud Code extension](https://cloud.google.com/code/docs/vscode/install) to easily create and manage secrets.
 
@@ -518,12 +511,38 @@ The other big problem is that `Web.config` and now our `appsettings.json` file a
             }
         }
     ```
+## Adding Google Cloud Logging & Monitoring
+We're almost done with our cloud journey, but another necessary requirement in the cloud is to centralize logging and monitoring.  It is commond for Cloud Native applications to adopt the [Twelve-Factor App](https://12factor.net/logs) pattern and treat logs as streams.  ASP.NET Core by default [writes logs](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/?view=aspnetcore-5.0) to `stdout` as desired.  By default all Cloud Run logs written to `stdout` by the container will be avialable in Google Cloud Logging.  However, [structured logging](https://cloud.google.com/logging/docs/structured-logging) allows us to make more sense of the logs, easier querying with machine & human readability.  
 
-### Putting it all together
+There are several ways to get ASP.NET to automatically structure the logs without changing your logging code.  The easiest method is to configure the `Google.Cloud.Diagnostics.AspNetCore` package.
+
+1. Add the package to your project
+    ```cmd
+    dotnet add package Google.Cloud.Diagnostics.AspNetCore
+    ```
+
+1. Modify `ContosoUniversity\Program.cs` to use this library:
+    ```diff
+            public static IHostBuilder CreateHostBuilder(string[] args) =>
+                Host.CreateDefaultBuilder(args)
+                    .ConfigureAppConfiguration(AddSecretConfig)
+                    .ConfigureWebHostDefaults(webBuilder =>
+                    {
+    +                   if (webBuilder.GetSetting("ENVIRONMENT") == "Production")
+    +                   {
+    +                       webBuilder.UseGoogleDiagnostics();
+    +                   }
+                        webBuilder.UseStartup<Startup>();
+                    });
+    ```
+
+1. You'll notice we only use this if we're running production as you don't want your production logs to get mixed with your local debugging or other envrionments.  This is also driven off the standard `ASPNETCORE_ENVIRONMENT` environment variable that we set earlier.  [By default](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-5.0#environments) if you do not set this ASP.NET Core will use the value `Production`.
+
+## Putting it all together
 
 At this stage, we are now using Cloud Build to build and publish our container to Google Container Registry, Google Secret Manager to store the connection string and Cloud Run to run our application.  To pull this all together we're going to create `cloudbuild.yaml` to automate our build and deployment.  Cloud Build can even be configured to run when you push to your git repo for example to enable CI/CD.  
 
-1. Create `cloudbuild.yaml` exactly as-is below, Cloud Build will automatically detect the `PROJECT_ID` and substitute `BUILD_ID` when it runs. 
+1. Create `cloudbuild.yaml` as copied below, Cloud Build will automatically substitute the `$PROJECT_ID` and `$BUILD_ID` when run. 
 
     ```yaml
     steps:
@@ -562,34 +581,6 @@ At this stage, we are now using Cloud Build to build and publish our container t
     ```cmd
     gcloud run services describe contosouniversity
     ```
-
-## Adding Google Cloud Logging & Monitoring
-We're almost done with our cloud journey, but another necessary requirement in the cloud is to centralize logging and monitoring.  It is commond for Cloud Native applications to adopt the [Twelve-Factor App](https://12factor.net/logs) pattern and treat logs as streams.  ASP.NET Core by default [writes logs](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/?view=aspnetcore-5.0) to `stdout` as desired.  By default all Cloud Run logs written to `stdout` by the container will be avialable in Google Cloud Logging.  However, [structured logging](https://cloud.google.com/logging/docs/structured-logging) allows us to make more sense of the logs, easier querying with machine & human readability.  
-
-There are several ways to get ASP.NET to automatically structure the logs without changing your logging code.  The easiest method is to configure the `Google.Cloud.Diagnostics.AspNetCore` package.
-
-1. Add the package to your project
-    ```cmd
-    dotnet add package Google.Cloud.Diagnostics.AspNetCore
-    ```
-
-1. Modify `ContosoUniversity\Program.cs` to use this library:
-    ```diff
-            public static IHostBuilder CreateHostBuilder(string[] args) =>
-                Host.CreateDefaultBuilder(args)
-                    .ConfigureAppConfiguration(AddSecretConfig)
-                    .ConfigureWebHostDefaults(webBuilder =>
-                    {
-    +                   if (webBuilder.GetSetting("ENVIRONMENT") == "Production")
-    +                   {
-    +                       webBuilder.UseGoogleDiagnostics();
-    +                   }
-                        webBuilder.UseStartup<Startup>();
-                    });
-    ```
-
-1. You'll notice we only use this if we're running production as you don't want your production logs to get mixed with your local debugging or other envrionments.  This is also driven off the standard `ASPNETCORE_ENVIRONMENT` environment variable that we set earlier.  [By default](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-5.0#environments) if you do not set this ASP.NET Core will use the value `Production`.
-
 ## What's Next?
 
 - [Optimzing](OPTIMIZE.md) .NET Core image size for even faster load times.

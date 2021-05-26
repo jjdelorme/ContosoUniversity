@@ -1,6 +1,6 @@
 # Migrating ASP.NET MVC to ASP.NET Core MVC on GCP
 
-This sample walks through a complete tutorial of migrating [Contoso University](https://docs.microsoft.com/en-us/aspnet/mvc/overview/getting-started/getting-started-with-ef-using-mvc/creating-an-entity-framework-data-model-for-an-asp-net-mvc-application) a traditional Microsoft ASP.NET Framework MVC + Entity Framework sample that was built with .NET Framework.  The goal of this tutorial will be to convert this application to .NET 5 and run in a Linux container on [Google Cloud Run](https://cloud.google.com/run), a fully serverless environment using [Cloud SQL for SQL Server](https://cloud.google.com/sql-server), a managed database in Google Cloud. The application uses Google Diagnostics and Cloud Logging for ASP.NET Core as well as Google Secret Manager and demonstrates using Cloud Build to build the container and automatically deploy to Cloud Run.
+This sample walks through a complete tutorial of migrating [Contoso University](https://docs.microsoft.com/en-us/aspnet/mvc/overview/getting-started/getting-started-with-ef-using-mvc/creating-an-entity-framework-data-model-for-an-asp-net-mvc-application), a traditional Microsoft ASP.NET Framework MVC + Entity Framework sample that was built with .NET Framework 4.5 and EntityFramework 6.  The goal of this tutorial will be to migrate this application to .NET 5 and run it in a Linux container on [Google Cloud Run](https://cloud.google.com/run), a fully serverless environment.  We also leverage [Cloud SQL for SQL Server](https://cloud.google.com/sql-server) a managed Microsoft SQL Server 2017 database in Google Cloud. The application uses Google Diagnostics and Cloud Logging for ASP.NET Core as well as Google Secret Manager and demonstrates using Cloud Build to build the container and automatically deploy to Cloud Run.
 
 Microsoft [documentation](https://docs.microsoft.com/en-us/aspnet/core/migration/proper-to-2x/?view=aspnetcore-5.0) offers detailed guidance migrating from ASP.NET to ASP.NET Core and this is not meant to be a replacement, but this demonstrates a practical, end-to-end walkthrough.
 
@@ -39,7 +39,7 @@ Open `ContosoUniversity.sln` with Visual Studio 2019.
 
 ### Setup Cloud SQL for SQL Server
 
-Start by setting up the Google Cloud SQL for SQL Server instance.  You can [create an instance](https://cloud.google.com/sql/docs/sqlserver/create-instance?hl=en_US>), [set up the DB](https://cloud.google.com/sql/docs/sqlserver/create-manage-databases?hl=en_US>) and [add a user](https://cloud.google.com/sql/docs/sqlserver/create-manage-users?hl=en_US) to connect to the database.  Make sure that the IP you will be connecting to the database from is added to the [Authorized networks](https://cloud.google.com/sql/docs/sqlserver/configure-ip?hl=en_US#console). 
+Start by setting up the Google Cloud SQL for SQL Server instance.  You can [create an instance](https://cloud.google.com/sql/docs/sqlserver/create-instance?hl=en_US>), [set up the DB](https://cloud.google.com/sql/docs/sqlserver/create-manage-databases?hl=en_US>) and [add a user](https://cloud.google.com/sql/docs/sqlserver/create-manage-users?hl=en_US) to connect to the database.  For the purposes of this tutorial you can use the SQL Server 2017 Express Edition which has $0 licensing costs.  Make sure that the IP you will be connecting to the database from is added to the [Authorized networks](https://cloud.google.com/sql/docs/sqlserver/configure-ip?hl=en_US#console). 
 As soon as you have that setup, make a note of the SQL server IP address, user and password. 
 
 ### Connect to the database
@@ -76,7 +76,7 @@ Confirm the application builds and functions as desired before staring the migra
 
 ## Migrate
 
-We are going to use the [.NET Upgrade Assistant](https://dotnet.microsoft.com/platform/upgrade-assistant/) to automate some steps of the migrating to .NET 5.  This will get us about 80% of the way there for this sample app and it is a good starting point for most .NET Framework to .NET 5 upgrades. 
+We are going to use the [.NET Upgrade Assistant](https://dotnet.microsoft.com/platform/upgrade-assistant/) to automate some steps of the migration to .NET 5.  This will get us about 80% of the way there for this sample app and it is a good starting point for most .NET Framework to .NET 5 upgrades. 
 
 1. Close your Visual Studio instance
 

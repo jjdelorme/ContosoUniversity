@@ -75,7 +75,7 @@ The deployment in `deploy.yaml` references this with the mount path, a fully qua
 ```
 
 ## Create the Windows Container Dockerfile
-The application is written in .NET Framework 4.5, but will run in a .NET Framework 4.8 runtime environment as depicted below.
+The application is written in .NET Framework 4.5, but will run in a .NET Framework 4.8 runtime environment as depicted below.  The `Dockerfile` should live in the solution directory.
 
 ```dockerfile
 # escape=`
@@ -95,8 +95,38 @@ COPY --from=build /deploy /inetpub/wwwroot
 
 EXPOSE 80
 ```
+### Run container locally
+
+You can skip this step and send the build directly to [Use Cloud Build](#Use-Cloud-Build-for-Windows-Containers) if you like.  However, if you have Docker installed locally and want to test the container, follow these steps.
+
+Build the container by running these commands from the solution directory.
+```cmd
+# Store the Project
+gcloud info --format=value(config.project) > __project && set /p PROJECT= < __project
+
+# Build the container
+docker build -t gcr.io/%PROJECT%/contosouniversity-windows:v1_ltsc2019 -f Dockerfile .
+
+# Run the container
+docker run -it --rm -p 8080:80 --name iis gcr.io/%PROJECT%/contosouniversity-windows:v1_ltsc2019
+```
+You should now be able to launch a browser with [http://localhost:8080](http://localhost:8080) to see the application.
+
+### Manually push the container to your Google Container Registry
+
+Again, this step can be skipped if you're going to [Use Cloud Build](#Use-Cloud-Build-for-Windows-Containers).
 
 ## Use Cloud Build for Windows Containers
+
+1. Ensure that you have authenticated against the registry.
+```cmd
+gcloud auth configure-docker
+```
+
+1. Push the container to the registry.
+```cmd
+docker push gcr.io/%PROJECT%/contosouniversity-windows:v1_ltsc2019
+```
 
 ### Preparing the environment
 

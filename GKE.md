@@ -1,6 +1,5 @@
 # Create a GKE Cluster with Windows Node Pool 
 
-```
 ## Create the GKE cluster
 
 Following these [instructions](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-cluster-windows), note that you must create the cluster from gcloud rather than the console UI because the `--enable-ip-alias` is not available there.

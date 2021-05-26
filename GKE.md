@@ -101,8 +101,8 @@ You can skip this step and send the build directly to [Use Cloud Build](#Use-Clo
 
 Build the container by running these commands from the solution directory.
 ```cmd
-# Store the Project
-gcloud info --format=value(config.project) > __project && set /p PROJECT= < __project
+# Store the Project env variable
+gcloud info --format=value(config.project) > __project && set /p PROJECT= < __project && del __project
 
 # Build the container
 docker build -t gcr.io/%PROJECT%/contosouniversity-windows:v1_ltsc2019 -f Dockerfile .

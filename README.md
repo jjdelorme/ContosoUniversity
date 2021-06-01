@@ -27,7 +27,7 @@ Microsoft [documentation](https://docs.microsoft.com/en-us/aspnet/core/migration
 
 ## Setup
 
-[Download the original Microsoft sample](https://webpifeed.blob.core.windows.net/webpifeed/Partners/ASP.NET%20MVC%20Application%20Using%20Entity%20Framework%20Code%20First.zip) and unzip it to a local directory, or clone this repository and checkout the `start` tag.
+Either [Download the original Microsoft sample](https://webpifeed.blob.core.windows.net/webpifeed/Partners/ASP.NET%20MVC%20Application%20Using%20Entity%20Framework%20Code%20First.zip) and unzip it to a local directory, or clone this repository and checkout the `start` tag:
 
 ```cmd
 git clone https://github.com/jjdelorme/ContosoUniversity
@@ -35,19 +35,22 @@ git clone https://github.com/jjdelorme/ContosoUniversity
 git checkout start
 ```
 
-Open `ContosoUniversity.sln` with Visual Studio 2019.
-
 ### Setup Cloud SQL for SQL Server
 
 Start by setting up the Google Cloud SQL for SQL Server instance.  
 
 1. [Create an instance](https://cloud.google.com/sql/docs/sqlserver/create-instance?hl=en_US>).  For the purposes of this tutorial you can use the SQL Server 2017 Express Edition which has $0 licensing costs.
+
 1. [Create a database](https://cloud.google.com/sql/docs/sqlserver/create-manage-databases?hl=en_US>) named `ContosoUniversity` 
+
 1. [Add a user](https://cloud.google.com/sql/docs/sqlserver/create-manage-users?hl=en_US) to connect to the database.    
+
 1. Make sure that the IP you will be connecting to the database from is added to the [Authorized networks](https://cloud.google.com/sql/docs/sqlserver/configure-ip?hl=en_US#console) or for the purposes of this demo (**and never in production**), you can allow all public IPs (0.0.0.0/0) to connect:
 ![Allow All Public IPs](_figures/allowpublicip.png)
 
 ### Connect to the database
+
+Open `ContosoUniversity.sln` with Visual Studio 2019.
 
 Using the Cloud SQL Server IP address, database name, user and password you created above, modify your connection string in the `Web.config` file:
 
@@ -63,10 +66,11 @@ In Visual Studio open the Package Manager Console from the **View** menu -> **Ot
 PM> update-database
 ```
 
+This will create the schema and seed the database with data.  If you are interested in how this works, it's automatic done using Entity Framework and the `DAL\SchoolInitializer.cs` class.
+
 ### Test the application 
 
-Confirm the application builds and functions as desired before staring the migration.  The application uses Entity Framework and an initializer will populate the database on first run if it connects succesfully.
-
+Confirm the application builds and functions as desired before staring the migration.  
 1. From Visual Studio 2019 press `Ctrl+F5` to build and run the project. 
 
 1. You should see the home page:
@@ -260,7 +264,7 @@ TODO: Need to confirm if this is being bundled/changed:
 
 ### Return Results
 
-ASP.NET MVC Core uses different return results for the controller's action methods.  Since there are many of these scattered throughout the `ContosoUniversity\Controllers\` classes this is best done with a `Search and Replace` in your IDE:
+ASP.NET MVC Core uses different return results for the controller's action methods.  Since there are many of these scattered throughout the `ContosoUniversity\Controllers\` classes this is best done with a `Search and Replace` in your IDE.  If you use Visual Studio, attempt to build the project and you will find these 
 
 ```diff
 -                return new StatusCodeResult(HttpStatusCode.BadRequest);
@@ -313,103 +317,9 @@ The `SelectList` object is now part of a different namespace, so you must add th
         }
 ```
 
-### Test the .NET 5 version
-
-The application should now compile and run succesfully as a .NET 5 application.  To build and launch the migrated .NET 5 application, run this from the `ContosoUniversity\' directory:
-```cmd
-dotnet run
-```
-Which should respond with this output showing the application listening on ports 5000 & 5001.  If for some reason you cannot use one of those ports, an easy alternative is to run `dotnet run -- --urls=http://localhost:3333` to run on port 3333 instead.
-```cmd
-info: Microsoft.Hosting.Lifetime[0]
-      Now listening on: http://localhost:5000
-info: Microsoft.Hosting.Lifetime[0]
-      Now listening on: https://localhost:5001
-info: Microsoft.Hosting.Lifetime[0]
-      Application started. Press Ctrl+C to shut down.
-info: Microsoft.Hosting.Lifetime[0]
-      Hosting environment: Production
-info: Microsoft.Hosting.Lifetime[0]
-      Content root path: C:\repos\ContosoUniversity\ContosoUniversity
-```
-
-You should now have your fully migrated .NET 5 application up and running again, connected to Google Cloud SQL for SQL Server just as you did with the .NET Framework version.  Go ahead and poke around in the application to test the functionality more thoroughly.
-
-## Deploying to Google Cloud
-
-Another great benefit of moving to .NET 5 is that you can now run the application in a lightweight Linux container.  With Linux containers, you can avoid the `it works on my machine` paradigm by encapsulting all of your dependencies in a small, portable format that can be run anywhere that can host a docker container, including Kubernetes or fully serverless platforms like Google Cloud Run.
-
-### Create the Dockerfile
-
-The next step will be to create a Dockerfile which runs in an [officially supported .NET Docker container](https://docs.microsoft.com/en-us/dotnet/architecture/microservices/net-core-net-framework-containers/official-net-docker-images).  
-
-Create the `Dockerfile` file in the root solution directory, i.e. the same directory where the `ContosoUniversity.sln` file resides:
-
-```dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
-WORKDIR /source
-COPY ./ContosoUniversity /source
-RUN dotnet publish -r linux-x64 --self-contained true -c Release -o /deploy
-
-FROM mcr.microsoft.com/dotnet/runtime-deps:5.0 AS runtime
-
-WORKDIR /app
-COPY --from=build /deploy .
-
-# Default port for Cloud Run
-ENV ASPNETCORE_URLS="http://0.0.0.0:8080"
-
-ENTRYPOINT ["/app/ContosoUniversity"]
-```
-
-Here we are using a Docker [multi-stage build](https://docs.docker.com/develop/develop-images/multistage-build/).  This guarantees that the build environment is always the same.  The output of the `build` stage is a [self-contained](https://docs.microsoft.com/en-us/dotnet/core/deploying/#publish-self-contained) executable that does not require .NET 5 to be installed, further reducing the image size and startup time.  The `runtime` stage copies only the runtime components necessary and sets a default URL to listen on as an environment variable.  The `ENTRYPOINT` is the name of the self-contained executable that was generated in `build`.  
-
-### Build and Run the container
-If you have Docker [installed](https://docs.docker.com/docker-for-windows/install/) on your local machine you can build and start this container with the following commands from the solution directory where you created the `Dockerfile`:
-
-```cmd
-docker build -t contosouniversity:v1 -f Dockerfile .
-
-docker run -it contosouniversity:v1 -p 8080:8080
-```
-
-This will run the application and expose port 8080 to the localhost, so that you can launch a browser at `http://localhost:8080` on your local machine to test.  
-
-### Using Cloud Build
-
-Rather than running Docker locally, you can use the managed Google Cloud Build service to build the container and automatically push it to your container registry:
-
-1. Get your Google Cloud Project ID using the `gcloud` tool, for example:
-    ```cmd
-    gcloud config list
-
-    [compute]
-    region = us-east1
-    [core]
-    account = xyz@sample.com
-    project = my-sample-project
-    ```
-    Don't worry if `project` or `region` are not listed for you.  If you haven't previously set your default project, just login to the [Google Cloud Console](https://console.cloud.google.com) and create your first project or get the name of an existing project.
-
-1. Submit your artifacts to cloud build and tag the docker image (substituting _my-sample-project_ with your own):
-    ```cmd
-    gcloud builds submit --tag gcr.io/_my-sample-project_/contosouniversity:v1
-    ```
-    Your complete docker build will now run in the cloud and you should see the output of the build printed to your console while it runs.
-
-### Deploying to Cloud Run
-
-Now that you've built your container and published it to Google Container Registry, you can easily deploy the application to Google Cloud Run.  
-
-```cmd
-gcloud run deploy --image gcr.io/_my-sample-project_/contosouniversity:v1 --platform managed
-```
-
-For a complete tutorial on Cloud Run with C# see [this](https://cloud.google.com/run/docs/quickstarts/build-and-deploy/c-sharp).
-
 ## Using .NET 5 Configuration
 
-So far we've ported the application to .NET 5, leveraged serverless Cloud Build to build a container and we've deployed to Cloud Run.  The application is connecting to Cloud SQL for SQL Server for it's backing store but there is one big problem with this setup right now.  `EntityFramework` is still using `Web.config` to load the connection string to your database, whereas the rest of ASP.NET Core now relies on a pluggable configuration provider.
+[Configuration in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0) is no longer read from `Web.config`, so we need to move our connection string over to to use one of the pluggable configuration providers.  
 
 ### Add connection string to appsettings
 
@@ -476,16 +386,118 @@ The best pattern to use a common service like the database context in ASP.NET Co
 
 1. It's now time to test the application again.  Go ahead and `dotnet run` to ensure the application still connects to the database.
 
+### Test the .NET 5 version
+
+The application should now compile and run succesfully as a .NET 5 application.  To build and launch the migrated .NET 5 application, run this from the `ContosoUniversity\' directory:
+```cmd
+dotnet run
+```
+Which should respond with this output showing the application listening on ports 5000 & 5001.  If for some reason you cannot use one of those ports, an easy alternative is to run `dotnet run -- --urls=http://localhost:3333` to run on port 3333 instead.
+```cmd
+info: Microsoft.Hosting.Lifetime[0]
+      Now listening on: http://localhost:5000
+info: Microsoft.Hosting.Lifetime[0]
+      Now listening on: https://localhost:5001
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\repos\ContosoUniversity\ContosoUniversity
+```
+
+You should now have your fully migrated .NET 5 application up and running again, connected to Google Cloud SQL for SQL Server just as you did with the .NET Framework version.  Go ahead and poke around in the application to test the functionality more thoroughly.
+
+## Deploying to Google Cloud
+
+Another great benefit of moving to .NET 5 is that you can now run the application in a lightweight Linux container.  With Linux containers, you can avoid the `it works on my machine` paradigm by encapsulting all of your dependencies in a small, portable format that can be run anywhere that can host a docker container, including Kubernetes or fully serverless platforms like Google Cloud Run.
+
+### Create the Dockerfile
+
+The next step will be to create a Dockerfile which runs in an [officially supported .NET Docker container](https://docs.microsoft.com/en-us/dotnet/architecture/microservices/net-core-net-framework-containers/official-net-docker-images).  
+
+Create the `Dockerfile` file in the root solution directory, i.e. the same directory where the `ContosoUniversity.sln` file resides:
+
+```dockerfile
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+WORKDIR /source
+COPY ./ContosoUniversity /source
+RUN dotnet publish -r linux-x64 --self-contained true -c Release -o /deploy
+
+FROM mcr.microsoft.com/dotnet/runtime-deps:5.0 AS runtime
+
+WORKDIR /app
+COPY --from=build /deploy .
+
+# Default port for Cloud Run
+ENV ASPNETCORE_URLS="http://0.0.0.0:8080"
+
+ENTRYPOINT ["/app/ContosoUniversity"]
+```
+
+Here we are using a Docker [multi-stage build](https://docs.docker.com/develop/develop-images/multistage-build/).  This guarantees that the build environment is always the same.  The output of the `build` stage is a [self-contained](https://docs.microsoft.com/en-us/dotnet/core/deploying/#publish-self-contained) executable that does not require .NET 5 to be installed, further reducing the image size and startup time.  The `runtime` stage copies only the runtime components necessary and sets a default URL to listen on as an environment variable.  The `ENTRYPOINT` is the name of the self-contained executable that was generated in `build`.  
+
+### Build and Run the container
+If you have Docker [installed](https://docs.docker.com/docker-for-windows/install/) on your local machine you can build and start this container with the following commands from the solution directory where you created the `Dockerfile`:
+
+```cmd
+docker build -t contosouniversity:v1 -f Dockerfile .
+
+docker run -it contosouniversity:v1 -p 8080:8080
+```
+
+This will run the application and expose port 8080 to the localhost, so that you can launch a browser at `http://localhost:8080` on your local machine to test.  
+
+### Using Cloud Build
+
+Rather than running Docker locally, you can use the managed Google Cloud Build service to build the container and automatically push it to your container registry.
+
+1. Get your Google Cloud Project ID using the `gcloud` tool, for example:
+    ```cmd
+    gcloud config list
+
+    [compute]
+    region = us-east1
+    [core]
+    account = xyz@sample.com
+    project = my-sample-project
+    ```
+    Don't worry if `project` or `region` are not listed for you.  If you haven't previously set your default project, just login to the [Google Cloud Console](https://console.cloud.google.com) and create your first project or get the name of an existing project.
+
+1. Submit your artifacts to cloud build and tag the docker image (substituting _my-sample-project_ with your own):
+    ```cmd
+    gcloud builds submit --tag gcr.io/_my-sample-project_/contosouniversity:v1
+    ```
+    Your complete docker build will now run in the cloud and you should see the output of the build printed to your console while it runs.
+
+### Deploying to Cloud Run
+
+Now that you've built your container and published it to Google Container Registry, you can easily deploy the application to Google Cloud Run.  
+
+```cmd
+gcloud run deploy --image gcr.io/_my-sample-project_/contosouniversity:v1 --platform managed --update-env-vars ASPNETCORE_ENVIRONMENT=Development
+```
+
+For a complete tutorial on Cloud Run with C# see [this](https://cloud.google.com/run/docs/quickstarts/build-and-deploy/c-sharp).
+
 ## Using Google Secret Manager
 
-The other big problem is that `Web.config` and now our `appsettings.json` file are in plain text being shipped around with your source code.  To fix this we're going to use Google Secret Manager to securely store the connection string.  If you are using Visual Studio Code at this point, you can use the [Cloud Code extension](https://cloud.google.com/code/docs/vscode/install) to easily create and manage secrets.
+While our application is now deployed and running, one issue is that our database connection string in `appsettings.json` are stored in plain text being shipped around with your source code.  To fix this we're going to use Google Secret Manager to securely store the connection string.  If you are using Visual Studio Code at this point, you can use the [Cloud Code extension](https://cloud.google.com/code/docs/vscode/install) to easily create and manage secrets.
 
 1. Install the extension and click on the Secret Manager icon
     ![Secret Manager](./_figures/secretmanager.png)
 
-1. Click to create a Secret and name it `connectionstrings`.  Copy the `connectionStrings` block from `appsettings.Development.json`
+1. Click to create a Secret and name it `connectionstrings` (all lowercase).  Copy the `connectionStrings` block from `appsettings.Development.json` including the leading and trailing curly braces:
 
-1. Paste the `ConnectionStrings` json block into the value field and surround it with opening and closing braces like the figure below, then click `Create Secret`:
+```json
+{
+  "ConnectionStrings": {
+    "SchoolContext": "Data Source=1.1.1.1;Initial Catalog=ContosoUniversity;User ID=sqlserver;Password=XXXXX;"
+  }
+}
+```
+
+1. Paste the `ConnectionStrings` json block into the value field like the figure below, then click `Create Secret`:
     ![Create Secret](./_figures/createsecret.png)
 
 1. There are multiple ways to read these secrets from your application including using the [SDK API directly](https://cloud.google.com/secret-manager/docs/creating-and-accessing-secrets#secretmanager-create-secret-csharp).  However, Cloud Run has [built-in support for Secrets](https://cloud.google.com/run/docs/configuring/secrets) which mount into the container as files at runtime.  We're going to have Cloud Run mount the connection string to: `/app/secret/appsettings.json`.  Because Cloud Run needs to mount the secrets into it's own directory, we're going to add some code for ASP.NET Core to optionally load config from this folder if it exists in `ContosoUniversity\Program.cs`:
@@ -546,7 +558,13 @@ There are several ways to get ASP.NET to automatically structure the logs withou
 
 At this stage, we are now using Cloud Build to build and publish our container to Google Container Registry, Google Secret Manager to store the connection string and Cloud Run to run our application.  To pull this all together we're going to create `cloudbuild.yaml` to automate our build and deployment.  Cloud Build can even be configured to run when you push to your git repo for example to enable CI/CD.  
 
-1. Create `cloudbuild.yaml` as copied below, Cloud Build will automatically substitute the `$PROJECT_ID` and `$BUILD_ID` when run. 
+1. Ensure you have the proper permissions for Cloud Build to deploy to Cloud Run.  In the [Deploying to Cloud Run How-to Guide](https://cloud.google.com/build/docs/deploying-builds/deploy-cloud-run#before_you_begin) you will see instructions to enable Service account permissions:
+![Cloud Build Permissions](_figures/cloudbuildpermissions.png)
+
+1. Ensure that the Cloud Run API is enabled and that you have created credentials.
+![Create Credentials](_figures/cloudruncredentials.png)
+
+1. Create `cloudbuild.yaml` in the solution directory as below. Cloud Build will automatically substitute the `$PROJECT_ID` and `$BUILD_ID` when run. 
 
     ```yaml
     steps:
@@ -576,7 +594,22 @@ At this stage, we are now using Cloud Build to build and publish our container t
     - gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID
     ```
 
-1. Submit the build
+1. While not required, it's a good idea to create a `.gitignore` file (note that the filename starts with a period `.` and has no extension.)  When you check-in files to git it will explicitly ignore these files and files that match the patterns.  Cloud Build leverages this to ignore these files as well, so it's a good idea to create it now.
+    ```
+    .vscode/
+    **/bin/
+    **/obj/
+    **/wwwroot/
+    service_account.json
+    **/appsettings.Development.json
+    *.csproj.user
+
+    # Exclude git history and configuration.
+    .git/
+    .gitignore
+    ```
+
+1. Submit the build from the solution directory
     ```cmd
     gcloud builds submit
     ```
@@ -587,5 +620,4 @@ At this stage, we are now using Cloud Build to build and publish our container t
     ```
 ## What's Next?
 
-- [Optimzing](OPTIMIZE.md) .NET Core image size for even faster load times.
 - Converting to .NET Core too much work for your workload? Check out building a [Windows Container and deploying to GKE](GKE.md) with no code changes.

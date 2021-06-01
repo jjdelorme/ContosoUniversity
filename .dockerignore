@@ -1,1 +1,5 @@
 **/*.config
+
+# Exclude git history and configuration.
+.git/
+.gitignore

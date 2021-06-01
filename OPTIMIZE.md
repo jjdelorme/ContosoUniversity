@@ -1,4 +1,4 @@
-# Optimizing Container image size
+# PLACEHOLDER: Optimizing Container image size
 - dive
 - Alpine
 - Structured Console Logger (removing Google Diagnostics)

@@ -1,0 +1,1 @@
+# PLACEHOLDER: Building a .NET Core migration factory

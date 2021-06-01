@@ -39,8 +39,13 @@ Open `ContosoUniversity.sln` with Visual Studio 2019.
 
 ### Setup Cloud SQL for SQL Server
 
-Start by setting up the Google Cloud SQL for SQL Server instance.  You can [create an instance](https://cloud.google.com/sql/docs/sqlserver/create-instance?hl=en_US>), [set up the DB](https://cloud.google.com/sql/docs/sqlserver/create-manage-databases?hl=en_US>) and [add a user](https://cloud.google.com/sql/docs/sqlserver/create-manage-users?hl=en_US) to connect to the database.  For the purposes of this tutorial you can use the SQL Server 2017 Express Edition which has $0 licensing costs.  Make sure that the IP you will be connecting to the database from is added to the [Authorized networks](https://cloud.google.com/sql/docs/sqlserver/configure-ip?hl=en_US#console). 
-As soon as you have that setup, make a note of the SQL server IP address, user and password. 
+Start by setting up the Google Cloud SQL for SQL Server instance.  
+
+1. [Create an instance](https://cloud.google.com/sql/docs/sqlserver/create-instance?hl=en_US>).  For the purposes of this tutorial you can use the SQL Server 2017 Express Edition which has $0 licensing costs.
+1. [Create a database](https://cloud.google.com/sql/docs/sqlserver/create-manage-databases?hl=en_US>) named `ContosoUniversity` 
+1. [Add a user](https://cloud.google.com/sql/docs/sqlserver/create-manage-users?hl=en_US) to connect to the database.    
+1. Make sure that the IP you will be connecting to the database from is added to the [Authorized networks](https://cloud.google.com/sql/docs/sqlserver/configure-ip?hl=en_US#console) or for the purposes of this demo (**and never in production**), you can allow all public IPs (0.0.0.0/0) to connect:
+![Allow All Public IPs](_figures/allowpublicip.png)
 
 ### Connect to the database
 
@@ -52,15 +57,10 @@ Using the Cloud SQL Server IP address, database name, user and password you crea
   </connectionStrings>
 ```
 
-Further down in your `Web.config` file, find the `<entityFramework>` section and uncomment the `<contexts .../>` node:
+In Visual Studio open the Package Manager Console from the **View** menu -> **Other Windows** -> **Package Manager Console** and entering this command:
 
-```XML
-  <entityFramework>
-      <contexts>
-       <context type="ContosoUniversity.DAL.SchoolContext, ContosoUniversity">
-        <databaseInitializer type="ContosoUniversity.DAL.SchoolInitializer, ContosoUniversity" />
-      </context>
-    </contexts>
+```cmd
+PM> update-database
 ```
 
 ### Test the application 
@@ -88,12 +88,12 @@ We are going to use the [.NET Upgrade Assistant](https://dotnet.microsoft.com/pl
     dotnet tool install -g upgrade-assistant
     ```
 
-1. Run the upgrade assitant
+1. Run the upgrade assistant
     ```cmd
-    upgrade-assistant --non-interactive ContosoUniversity.sln
+    upgrade-assistant ContosoUniversity.sln --non-interactive --skip-backup
     ```
 
-The output of the Upgrade Assistant will be the converted .NET 5 project.  A summary of the file differences after conversion:
+The output of the Upgrade Assistant will be the converted .NET 5 project.  A `log.txt` file will contain a summary of the changes.  *If* you cloned the repository to start with above, you can get a more detailed comparision of the file differences after conversion with this command:
 
 ```cmd
  git diff --stat start upgraded
@@ -122,7 +122,7 @@ The output of the Upgrade Assistant will be the converted .NET 5 project.  A sum
 
 ## Refactor
 
-We'll now need to make some manual changes to get the application to compile.  At this point many developers choose to switch to [Visual Studio Code](https://code.visualstudio.com/) which is much lighter weight and a rich, open source IDE for developing in .NET Core.  You can of course continue to use Visual Studio if you choose.
+We'll now need to make some manual changes to get the application to succesfully build under .NET 5.  At this point many developers choose to switch to [Visual Studio Code](https://code.visualstudio.com/) which is much lighter weight and a rich, open source IDE for developing in .NET Core.  You can of course continue to use Visual Studio if you choose.
 
 ### Remove App_Start\\\*.* and Global.asax*
 
@@ -149,10 +149,12 @@ The downloaded source code directory structure should look like the tree below. 
 
 For ASP.NET Core we need to remove all the files from the `ContosoUniversity\App_Start` directory as well as `ContosoUniversity\Global.asax*` files.  Let's look at these files and the .NET 5 equivalent replacement.
 
-* [Bundling and minification](https://docs.microsoft.com/en-us/aspnet/core/client-side/bundling-and-minification?view=aspnetcore-5.0) changed in ASP.NET Core, so you need to remove the file `ContosoUniversity\App_Start\BundleConfig.cs`.  To replace we're going to use the `BuildBunderlMinifier` nuget package to bundle and minify at build time.
+* [Bundling and minification](https://docs.microsoft.com/en-us/aspnet/core/client-side/bundling-and-minification?view=aspnetcore-5.0) changed in ASP.NET Core, so you need to remove the file `ContosoUniversity\App_Start\BundleConfig.cs`.  To replace we're going to use the `BuildBunderlMinifier` nuget package to bundle and minify at build time.  This command must be run from the `ContosoUniversity` **project** folder:
 
     1. Add the package
         ```cmd
+        cd ContosoUniversity\
+        
         dotnet add package BuildBundlerMinifier
         ```
 
@@ -187,7 +189,9 @@ For ASP.NET Core we need to remove all the files from the `ContosoUniversity\App
                 }
         ]
         ```
-    1. Remove `@Scripts.Render` references (`-` lines below) from all `.cshtml` files and replace with the `+` lines below.  
+    1. Remove `@Scripts.Render` references (`-` lines below) from all `.cshtml` files and replace with the `+` lines below.  If you use Visual Studio, it can be helpful to use `Find` with a regular expression of `(~/Content)|(~/bundles)`:
+    ![Find with RegEx](_figures/findregex.png)
+
         ```diff
         - @section Scripts {
         -    @Scripts.Render("~/bundles/jqueryval")
@@ -229,7 +233,7 @@ Our sample application uses the `PagedList.Mvc` library which needs to be replac
     dotnet add package PagedList.Core.Mvc
     ```
 
-1. In the `ContosoUniversity\Controllers\Student.cs` controllers replace the `using` reference:
+1. In the `ContosoUniversity\Controllers\StudentController.cs` controllers replace the `using` reference:
     ```diff
     - using PagedList;
     + using PagedList.Core;

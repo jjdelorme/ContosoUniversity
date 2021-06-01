@@ -527,6 +527,10 @@ While our application is now deployed and running, one issue is that our databas
             }
         }
     ```
+
+1. Add `Secret Manager Secret Accessor` by following [these instructions](https://cloud.google.com/run/docs/configuring/secrets#access-secret) to the Cloud Run service account.
+    ![Secret Permissions](_figures/secretpermissions.png)
+
 ## Adding Google Cloud Logging & Monitoring
 We're almost done with our cloud journey, but another necessary requirement in the cloud is to centralize logging and monitoring.  It is commond for Cloud Native applications to adopt the [Twelve-Factor App](https://12factor.net/logs) pattern and treat logs as streams.  ASP.NET Core by default [writes logs](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/?view=aspnetcore-5.0) to `stdout` as desired.  By default all Cloud Run logs written to `stdout` by the container will be avialable in Google Cloud Logging.  However, [structured logging](https://cloud.google.com/logging/docs/structured-logging) allows us to make more sense of the logs, easier querying with machine & human readability.  
 

@@ -9,8 +9,8 @@ Microsoft [documentation](https://docs.microsoft.com/en-us/aspnet/core/migration
 * [Setup](#Setup) 
 * [Migrate](#Migrate)
 * [Refactor](#Refactor)
-* [Deploying to Google Cloud](#Deploying-to-Google-Cloud)
 * [Using .NET 5 Configuration](#Using-.NET-5-Configuration)
+* [Deploying to Google Cloud](#Deploying-to-Google-Cloud)
 * [Using Google Secret Manager](#Using-Google-Secret-Manager)
 * [Adding Google Cloud Logging & Monitoring](#Adding-Google-Cloud-Logging-&-Monitoring)
 * [Putting it all together](#Putting-it-all-together)
@@ -60,7 +60,7 @@ Using the Cloud SQL Server IP address, database name, user and password you crea
   </connectionStrings>
 ```
 
-In Visual Studio open the Package Manager Console from the **View** menu -> **Other Windows** -> **Package Manager Console** and entering this command:
+In Visual Studio open the Package Manager Console from the **View** menu -> **Other Windows** -> **Package Manager Console** and enter this command:
 
 ```cmd
 PM> update-database
@@ -126,7 +126,7 @@ The output of the Upgrade Assistant will be the converted .NET 5 project.  A `lo
 
 ## Refactor
 
-We'll now need to make some manual changes to get the application to succesfully build under .NET 5.  At this point many developers choose to switch to [Visual Studio Code](https://code.visualstudio.com/) which is much lighter weight and a rich, open source IDE for developing in .NET Core.  You can of course continue to use Visual Studio if you choose.
+We'll now need to make some manual changes to get the application to succesfully build under .NET 5.  At this point many developers choose to switch to [Visual Studio Code](https://code.visualstudio.com/) which is much lighter weight, open source IDE for developing in .NET Core.  You can of course continue to use Visual Studio if you choose.
 
 ### Remove App_Start\\\*.* and Global.asax*
 
@@ -153,7 +153,7 @@ The downloaded source code directory structure should look like the tree below. 
 
 For ASP.NET Core we need to remove all the files from the `ContosoUniversity\App_Start` directory as well as `ContosoUniversity\Global.asax*` files.  Let's look at these files and the .NET 5 equivalent replacement.
 
-* [Bundling and minification](https://docs.microsoft.com/en-us/aspnet/core/client-side/bundling-and-minification?view=aspnetcore-5.0) changed in ASP.NET Core, so you need to remove the file `ContosoUniversity\App_Start\BundleConfig.cs`.  To replace we're going to use the `BuildBunderlMinifier` nuget package to bundle and minify at build time.  This command must be run from the `ContosoUniversity` **project** folder:
+* [Bundling and minification](https://docs.microsoft.com/en-us/aspnet/core/client-side/bundling-and-minification?view=aspnetcore-5.0) changed in ASP.NET Core, so you need to remove the file `ContosoUniversity\App_Start\BundleConfig.cs`.  To replace we're going to use the `BuildBundlerMinifier` nuget package to bundle and minify at build time.  This command must be run from the `ContosoUniversity` **project** folder:
 
     1. Add the package
         ```cmd
@@ -193,7 +193,7 @@ For ASP.NET Core we need to remove all the files from the `ContosoUniversity\App
                 }
         ]
         ```
-    1. Remove `@Scripts.Render` references (`-` lines below) from all `.cshtml` files and replace with the `+` lines below.  If you use Visual Studio, it can be helpful to use `Find` with a regular expression of `(~/Content)|(~/bundles)`:
+    1. Remove `@Scripts.Render` references (`-` lines below) from all `.cshtml` files and replace with the `+` lines below.  VS Code has built in support for regex in Find (`CTRL-F`) then press `ALT+R` to use regular expression mode and search for `(~/Content)|(~/bundles)`.  If you use Visual Studio it can be helpful to use `Find` dialog like this:
     ![Find with RegEx](_figures/findregex.png)
 
         ```diff
@@ -319,7 +319,7 @@ The `SelectList` object is now part of a different namespace, so you must add th
 
 ## Using .NET 5 Configuration
 
-[Configuration in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0) is no longer read from `Web.config`, so we need to move our connection string over to to use one of the pluggable configuration providers.  
+[Configuration in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0) is no longer read from `Web.config`, so we need to move our connection string over to use one of the pluggable configuration providers which gives us much more flexiblity depending on the environment the application is deployed to.
 
 ### Add connection string to appsettings
 
@@ -347,8 +347,6 @@ The `SelectList` object is now part of a different namespace, so you must add th
 1. Delete the `Web.config` file.
 
 ### Use ASP.NET MVC Core Dependency Injection for configuration
-
-The old application relied on logic in EntityFramework to load from the `Web.config` file.  ASP.NET Core uses one or more [configuration providers](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0) which gives us much more flexiblity depending on the environment the application is deployed to.
 
 The best pattern to use a common service like the database context in ASP.NET Core is to use [Dependency Injection](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-5.0). 
 

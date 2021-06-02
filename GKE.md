@@ -171,9 +171,12 @@ This is probably easiest done from the Google Cloud Shell.  If you did the earli
 
 ```bash
 export PROJECT=$(gcloud info --format='value(config.project)')
+export CLUSTER_NAME=your_cluster_name_here
+
+# Make sure you have authenticated against the GKE cluster locally:
+gcloud container clusters get-credentials $CLUSTER_NAME
 
 envsubst < deploy.yaml | kubectl apply -f -
-
 ```
 The above script uses the `envsubst` tool to substitute `${PROJECT}` with your project which is obtained in the first line.  The output of that script is applied to your GKE cluster.  You can see the relevant placeholder in the `deploy.yaml` file below:
 

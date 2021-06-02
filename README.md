@@ -13,11 +13,13 @@ This sample walks through a complete tutorial of running [Contoso University](ht
 
 1. (Optional) [Install Docker](https://docs.docker.com/docker-for-windows/install/) on your local machine.  Don't worry if you cannot install Docker in your environment, we have a solution for you!
 
+1. Install [.NET 5 SDK](https://dotnet.microsoft.com/download/dotnet/5.0)
+
 1. Download and install the Google Cloud SDK following these [instructions](https://cloud.google.com/sdk/docs/install) or clone this repo.
 
 ## Setup
 
-[Download the original Microsoft sample](https://webpifeed.blob.core.windows.net/webpifeed/Partners/ASP.NET%20MVC%20Application%20Using%20Entity%20Framework%20Code%20First.zip) and unzip it to a local directory, or clone this repository and checkout the `start` tag.
+Either [Download the original Microsoft sample](https://webpifeed.blob.core.windows.net/webpifeed/Partners/ASP.NET%20MVC%20Application%20Using%20Entity%20Framework%20Code%20First.zip) and unzip it to a local directory, or clone this repository and checkout the `start` tag:
 
 ```cmd
 git clone https://github.com/jjdelorme/ContosoUniversity
@@ -25,14 +27,22 @@ git clone https://github.com/jjdelorme/ContosoUniversity
 git checkout start
 ```
 
-Open `ContosoUniversity.sln` with Visual Studio 2019.
-
 ### Setup Cloud SQL for SQL Server
 
-Start by setting up the Google Cloud SQL for SQL Server instance.  You can [create an instance](https://cloud.google.com/sql/docs/sqlserver/create-instance?hl=en_US>), [set up the DB](https://cloud.google.com/sql/docs/sqlserver/create-manage-databases?hl=en_US>) and [add a user](https://cloud.google.com/sql/docs/sqlserver/create-manage-users?hl=en_US) to connect to the database.  For the purposes of this tutorial you can use the SQL Server 2017 Express Edition which has $0 licensing costs.  Make sure that the IP you will be connecting to the database from is added to the [Authorized networks](https://cloud.google.com/sql/docs/sqlserver/configure-ip?hl=en_US#console). 
-As soon as you have that setup, make a note of the SQL server IP address, user and password. 
+Start by setting up the Google Cloud SQL for SQL Server instance.  
+
+1. [Create an instance](https://cloud.google.com/sql/docs/sqlserver/create-instance?hl=en_US>).  For the purposes of this tutorial you can use the SQL Server 2017 Express Edition which has $0 licensing costs.
+
+1. [Create a database](https://cloud.google.com/sql/docs/sqlserver/create-manage-databases?hl=en_US>) named `ContosoUniversity` 
+
+1. [Add a user](https://cloud.google.com/sql/docs/sqlserver/create-manage-users?hl=en_US) to connect to the database.    
+
+1. Make sure that the IP you will be connecting to the database from is added to the [Authorized networks](https://cloud.google.com/sql/docs/sqlserver/configure-ip?hl=en_US#console) or for the purposes of this demo (**and never in production**), you can allow all public IPs (0.0.0.0/0) to connect:
+![Allow All Public IPs](_figures/allowpublicip.png)
 
 ### Connect to the database
+
+Open `ContosoUniversity.sln` with Visual Studio 2019.
 
 Using the Cloud SQL Server IP address, database name, user and password you created above, modify your connection string in the `Web.config` file:
 
@@ -42,21 +52,17 @@ Using the Cloud SQL Server IP address, database name, user and password you crea
   </connectionStrings>
 ```
 
-Further down in your `Web.config` file, find the `<entityFramework>` section and uncomment the `<contexts .../>` node:
+In Visual Studio open the Package Manager Console from the **View** menu -> **Other Windows** -> **Package Manager Console** and enter this command:
 
-```XML
-  <entityFramework>
-      <contexts>
-       <context type="ContosoUniversity.DAL.SchoolContext, ContosoUniversity">
-        <databaseInitializer type="ContosoUniversity.DAL.SchoolInitializer, ContosoUniversity" />
-      </context>
-    </contexts>
+```cmd
+PM> update-database
 ```
+
+This will create the schema and seed the database with data.  If you are interested in how this works, it's automatic done using Entity Framework and the `DAL\SchoolInitializer.cs` class.
 
 ### Test the application 
 
-Confirm the application builds and functions as desired before staring the migration.  The application uses Entity Framework and an initializer will populate the database on first run if it connects succesfully.
-
+Confirm the application builds and functions as desired before staring the migration.  
 1. From Visual Studio 2019 press `Ctrl+F5` to build and run the project. 
 
 1. You should see the home page:

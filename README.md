@@ -408,7 +408,7 @@ You should now have your fully migrated .NET 5 application up and running again,
 
 ## Deploying to Google Cloud
 
-Another great benefit of moving to .NET 5 is that you can now run the application in a lightweight Linux container.  With Linux containers, you can avoid the `it works on my machine` paradigm by encapsulting all of your dependencies in a small, portable format that can be run anywhere that can host a docker container, including Kubernetes or fully serverless platforms like Google Cloud Run.
+Another great benefit of moving to .NET 5 is that you can now run the application in a lightweight Linux container.  With Linux containers you can avoid the `it works on my machine` paradigm by encapsulting all of your dependencies in a small, portable format that can be run anywhere that can host a docker container, including Kubernetes or fully serverless platforms like Google Cloud Run.
 
 ### Create the Dockerfile
 

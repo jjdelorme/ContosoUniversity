@@ -4,7 +4,6 @@
 **/obj/
 **/wwwroot/
 service_account.json
-**/appsettings.Development.json
 *.csproj.user
 
 # Exclude git history and configuration.

@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Google.Cloud.Diagnostics.AspNetCore;
+using Google.Cloud.Logging.Console;
 
 namespace ContosoUniversity
 {
@@ -29,7 +29,10 @@ namespace ContosoUniversity
                 {
                     if (webBuilder.GetSetting("ENVIRONMENT") == "Production")
                     {
-                        webBuilder.UseGoogleDiagnostics();
+                        // Configure the console logger
+                        webBuilder.ConfigureLogging(loggingBuilder => loggingBuilder
+                            .AddConsoleFormatter<GoogleCloudConsoleFormatter, GoogleCloudConsoleFormatterOptions>(options => options.IncludeScopes = true)
+                            .AddConsole(options => options.FormatterName = nameof(GoogleCloudConsoleFormatter)));
                     }
                     webBuilder.UseStartup<Startup>();
                 });
@@ -37,14 +40,20 @@ namespace ContosoUniversity
         private static void AddSecretConfig(HostBuilderContext context, 
             IConfigurationBuilder config) 
         {
-            const string secretsPath = "secrets";
+            string secretsPath = context.Configuration.GetValue("SECRETS_PATH", 
+                "secrets");
             
             var secretFileProvider = context.HostingEnvironment.ContentRootFileProvider
                 .GetDirectoryContents(secretsPath);
             
             if (secretFileProvider.Exists)
+            {
                 foreach (var secret in secretFileProvider)
-                    config.AddJsonFile(secret.PhysicalPath, false, true);
+                {
+                    if (!secret.IsDirectory && secret.Name.ToUpper().EndsWith(".JSON"))
+                        config.AddJsonFile(secret.PhysicalPath, false, true);
+                }
+            }
         }
     }
 }

@@ -25,7 +25,6 @@ steps:
   - '--platform'
   - 'managed'
   - '--allow-unauthenticated'
-  - '--update-secrets=/app/secrets/appsettings.json=connectionstrings:latest'
   - '--update-env-vars=ASPNETCORE_ENVIRONMENT=Development'
 
 images:

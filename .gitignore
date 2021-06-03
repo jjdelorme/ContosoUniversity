@@ -3,8 +3,8 @@
 **/bin/
 **/obj/
 **/wwwroot/
-service_account.json
 *.csproj.user
+#**/appsettings.Development.json
 
 # Exclude git history and configuration.
 .git/

@@ -2,7 +2,6 @@
 **/bin/
 **/obj/
 **/wwwroot/
-service_account.json
 **/appsettings.Development.json
 *.csproj.user
 

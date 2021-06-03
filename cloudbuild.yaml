@@ -21,9 +21,10 @@ steps:
   - '--image'
   - 'gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID'
   - '--region'
-  - 'us-east1'
+  - 'us-central1'
   - '--platform'
   - 'managed'
+  - '--allow-unauthenticated'  
   - '--update-secrets=/app/secrets/appsettings.json=connectionstrings:latest'
 
 images:

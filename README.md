@@ -587,9 +587,10 @@ At this stage, we are now using Cloud Build to build and publish our container t
     - '--image'
     - 'gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID'
     - '--region'
-    - 'us-east1'
+    - 'us-central1'
     - '--platform'
     - 'managed'
+    - '--allow-unauthenticated'
     - '--update-secrets=/app/secrets/appsettings.json=connectionstrings:latest'
 
     images:

@@ -24,6 +24,7 @@ steps:
   - 'us-east1'
   - '--platform'
   - 'managed'
+  - '--allow-unauthenticated'
   - '--update-secrets=/app/secrets/appsettings.json=connectionstrings:latest'
 
 images:

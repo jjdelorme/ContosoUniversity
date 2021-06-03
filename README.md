@@ -590,6 +590,7 @@ At this stage, we are now using Cloud Build to build and publish our container t
     - 'us-east1'
     - '--platform'
     - 'managed'
+    - '--allow-unauthenticated'
     - '--update-secrets=/app/secrets/appsettings.json=connectionstrings:latest'
 
     images:

@@ -106,6 +106,13 @@
     <PackageReference Include="Google.Cloud.Diagnostics.AspNetCore" Version="4.2.0" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.32.0" />
 ```    
+or running these commands from the ContosoUniversity\ project directory:
+
+```
+dotnet add package Google.Cloud.Diagnostics.AspNetCore --version=4.2.0
+dotnet add package Grpc.AspNetCore --version=2.32.0
+```
+
 
 - Add these lines to `Program.cs`
 ```csharp

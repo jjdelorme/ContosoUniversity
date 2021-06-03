@@ -39,7 +39,7 @@ git checkout start
 
 Start by setting up the Google Cloud SQL for SQL Server instance.  
 
-1. [Create an instance](https://cloud.google.com/sql/docs/sqlserver/create-instance?hl=en_US>).  For the purposes of this tutorial you can use the SQL Server 2017 Express Edition which has $0 licensing costs.
+1. [Create an instance](https://cloud.google.com/sql/docs/sqlserver/create-instance?hl=en_US>).  For the purposes of this tutorial you can use the SQL Server 2017 Express Edition which has $0 licensing costs.  For this tutorial we're going to put all resources in the `us-central1` region.  If you prefer a different region, make sure to change that in all region references below.
 
 1. [Create a database](https://cloud.google.com/sql/docs/sqlserver/create-manage-databases?hl=en_US>) named `ContosoUniversity` 
 
@@ -455,7 +455,7 @@ Rather than running Docker locally, you can use the managed Google Cloud Build s
     gcloud config list
 
     [compute]
-    region = us-east1
+    region = us-central1
     [core]
     account = xyz@sample.com
     project = my-sample-project
@@ -587,9 +587,10 @@ At this stage, we are now using Cloud Build to build and publish our container t
     - '--image'
     - 'gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID'
     - '--region'
-    - 'us-east1'
+    - 'us-central1'
     - '--platform'
     - 'managed'
+    - '--allow-unauthenticated'
     - '--update-secrets=/app/secrets/appsettings.json=connectionstrings:latest'
 
     images:

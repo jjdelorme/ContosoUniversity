@@ -37,14 +37,20 @@ namespace ContosoUniversity
         private static void AddSecretConfig(HostBuilderContext context, 
             IConfigurationBuilder config) 
         {
-            const string secretsPath = "secrets";
+            string secretsPath = context.Configuration.GetValue("SECRETS_PATH", 
+                "secrets");
             
             var secretFileProvider = context.HostingEnvironment.ContentRootFileProvider
                 .GetDirectoryContents(secretsPath);
             
             if (secretFileProvider.Exists)
+            {
                 foreach (var secret in secretFileProvider)
-                    config.AddJsonFile(secret.PhysicalPath, false, true);
+                {
+                    if (!secret.IsDirectory && secret.Name.ToUpper().EndsWith(".JSON"))
+                        config.AddJsonFile(secret.PhysicalPath, false, true);
+                }
+            }
         }
     }
 }

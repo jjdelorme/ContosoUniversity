@@ -446,6 +446,18 @@ docker run -it contosouniversity:v1 -p 8080:8080
 
 This will run the application and expose port 8080 to the localhost, so that you can launch a browser at `http://localhost:8080` on your local machine to test.  
 
+### Enabling Google APIs
+
+If you have not already done so, make sure to enable the following APIs in your project.  You can do this with the following command, easiest if done in the Google Cloud shell:
+
+```bash
+gcloud services enable \
+    containerregistry.googleapis.com \
+    run.googleapis.com \
+    compute.googleapis.com \
+    cloudbuild.googleapis.com
+```
+
 ### Using Cloud Build
 
 Rather than running Docker locally, you can use the managed Google Cloud Build service to build the container and automatically push it to your container registry.

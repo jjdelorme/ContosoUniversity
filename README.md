@@ -39,7 +39,7 @@ git checkout start
 
 Start by setting up the Google Cloud SQL for SQL Server instance.  
 
-1. [Create an instance](https://cloud.google.com/sql/docs/sqlserver/create-instance?hl=en_US>).  For the purposes of this tutorial you can use the SQL Server 2017 Express Edition which has $0 licensing costs.
+1. [Create an instance](https://cloud.google.com/sql/docs/sqlserver/create-instance?hl=en_US>).  For the purposes of this tutorial you can use the SQL Server 2017 Express Edition which has $0 licensing costs.  For this tutorial we're going to put all resources in the `us-central1` region.  If you prefer a different region, make sure to change that in all region references below.
 
 1. [Create a database](https://cloud.google.com/sql/docs/sqlserver/create-manage-databases?hl=en_US>) named `ContosoUniversity` 
 
@@ -455,7 +455,7 @@ Rather than running Docker locally, you can use the managed Google Cloud Build s
     gcloud config list
 
     [compute]
-    region = us-east1
+    region = us-central1
     [core]
     account = xyz@sample.com
     project = my-sample-project
@@ -565,6 +565,19 @@ At this stage, we are now using Cloud Build to build and publish our container t
 
 1. Ensure that the Cloud Run API is enabled and that you have created credentials.
 ![Create Credentials](_figures/cloudruncredentials.png)
+
+1. Alternatively, you can set permissions with the following script.  This is easiest if done from the Google Cloud Shell as it relies on bash.
+    ```bash
+    PROJECT_ID=`gcloud config list --format 'value(core.project)' 2>/dev/null`
+
+    PROJECT_NUMBER=`gcloud projects describe $PROJECT_ID --format='value(projectNumber)'`
+
+    gcloud projects add-iam-policy-binding $PROJECT_ID --member "serviceAccount:$PROJECT_NUMBER@cloudbuild.gserviceaccount.com" --role roles/run.admin
+
+    gcloud iam service-accounts add-iam-policy-binding $PROJECT_NUMBER-compute@developer.gserviceaccount.com --member "serviceAccount:$PROJECT_NUMBER@cloudbuild.gserviceaccount.com" --role "roles/iam.serviceAccountUser"    
+
+    gcloud projects add-iam-policy-binding $PROJECT_ID --condition=expression='resource.name.startsWith("projects/$PROJECT_NUMBER/secrets/connectionstrings")',title="Access connection string secret" --role=roles/secretmanager.secretAccessor --member=serviceAccount:$PROJECT_NUMBER-compute@developer.gserviceaccount.com
+    ```
 
 1. Create `cloudbuild.yaml` in the solution directory as below. Cloud Build will automatically substitute the `$PROJECT_ID` and `$BUILD_ID` when run. 
 

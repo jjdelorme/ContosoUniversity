@@ -585,26 +585,26 @@ At this stage, we are now using Cloud Build to build and publish our container t
     steps:
     # Build the container image
     - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID', '.']
+      args: ['build', '-t', 'gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID', '.']
     # Push the container image to Container Registry
     - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID']
+      args: ['push', 'gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID']
     # Deploy container image to Cloud Run
     - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args: 
-    - 'beta'  
-    - 'run'
-    - 'deploy'
-    - 'contosouniversity'
-    - '--image'
-    - 'gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID'
-    - '--region'
-    - 'us-central1'
-    - '--platform'
-    - 'managed'
-    - '--allow-unauthenticated'
-    - '--update-secrets=/app/secrets/appsettings.json=connectionstrings:latest'
+      entrypoint: gcloud
+      args: 
+      - 'beta'  
+      - 'run'
+      - 'deploy'
+      - 'contosouniversity'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--update-secrets=/app/secrets/appsettings.json=connectionstrings:latest'
 
     images:
     - gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID

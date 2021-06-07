@@ -16,6 +16,7 @@
 
 - [RUN] `upgrade-assistant --skip-backup --non-interactive ContosoUniversity.sln`
     * explain that this tool is continuously improving, so your results could be slightly different
+    * technically the upgrade-assistant is still a 'preview'
 	* ... in fact explain extensibility mechanism
     * Talk about code changes required by scrolling through the [README](https://github.com/jjdelorme/ContosoUniversity#readme)... stop at .NET 5 Configuration
 

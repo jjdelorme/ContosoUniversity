@@ -446,6 +446,18 @@ docker run -it contosouniversity:v1 -p 8080:8080
 
 This will run the application and expose port 8080 to the localhost, so that you can launch a browser at `http://localhost:8080` on your local machine to test.  
 
+### Enabling Google APIs
+
+If you have not already done so, make sure to enable the following APIs in your project.  You can do this with the following command, easiest if done in the Google Cloud shell:
+
+```bash
+gcloud services enable \
+    containerregistry.googleapis.com \
+    run.googleapis.com \
+    compute.googleapis.com \
+    cloudbuild.googleapis.com
+```
+
 ### Using Cloud Build
 
 Rather than running Docker locally, you can use the managed Google Cloud Build service to build the container and automatically push it to your container registry.
@@ -585,26 +597,26 @@ At this stage, we are now using Cloud Build to build and publish our container t
     steps:
     # Build the container image
     - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID', '.']
+      args: ['build', '-t', 'gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID', '.']
     # Push the container image to Container Registry
     - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID']
+      args: ['push', 'gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID']
     # Deploy container image to Cloud Run
     - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args: 
-    - 'beta'  
-    - 'run'
-    - 'deploy'
-    - 'contosouniversity'
-    - '--image'
-    - 'gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID'
-    - '--region'
-    - 'us-central1'
-    - '--platform'
-    - 'managed'
-    - '--allow-unauthenticated'
-    - '--update-secrets=/app/secrets/appsettings.json=connectionstrings:latest'
+      entrypoint: gcloud
+      args: 
+      - 'beta'  
+      - 'run'
+      - 'deploy'
+      - 'contosouniversity'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--update-secrets=/app/secrets/appsettings.json=connectionstrings:latest'
 
     images:
     - gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID

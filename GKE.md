@@ -21,6 +21,18 @@ gcloud container node-pools create windows-ltsc-pool \
 gcloud container clusters get-credentials $CLUSTER_NAME
 ```
 
+### Enabling Google APIs
+
+If you have not already done so, make sure to enable the following APIs in your project.  You can do this with the following command, easiest if done in the Google Cloud shell:
+
+```bash
+gcloud services enable \
+    containerregistry.googleapis.com \
+    run.googleapis.com \
+    compute.googleapis.com \
+    cloudbuild.googleapis.com
+```
+
 ## Get the code
 
 NOTE: This code relies on running from the `gkewindows` branch.  In order to walk through these steps, open this up in a browser to follow along and then use these steps:
@@ -95,7 +107,7 @@ COPY --from=build /deploy /inetpub/wwwroot
 
 EXPOSE 80
 ```
-### Run container locally
+### Run container locally (OPTIONAL)
 
 You can skip this step and send the build directly to [Use Cloud Build](#Use-Cloud-Build-for-Windows-Containers) if you like.  However, if you have Docker installed locally and want to test the container, follow these steps.
 

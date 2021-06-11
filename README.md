@@ -580,7 +580,7 @@ At this stage, we are now using Cloud Build to build and publish our container t
 
 1. Alternatively, you can set permissions with the following script.  This is easiest if done from the Google Cloud Shell as it relies on bash.
     ```bash
-    PROJECT_ID=`gcloud config list --format 'value(core.project)' 2>/dev/null`
+    PROJECT_ID=`gcloud config list --format 'value(core.project)'`
 
     PROJECT_NUMBER=`gcloud projects describe $PROJECT_ID --format='value(projectNumber)'`
 

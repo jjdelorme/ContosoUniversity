@@ -584,11 +584,18 @@ At this stage, we are now using Cloud Build to build and publish our container t
 
     PROJECT_NUMBER=`gcloud projects describe $PROJECT_ID --format='value(projectNumber)'`
 
-    gcloud projects add-iam-policy-binding $PROJECT_ID --member "serviceAccount:$PROJECT_NUMBER@cloudbuild.gserviceaccount.com" --role roles/run.admin
+    gcloud projects add-iam-policy-binding $PROJECT_ID \
+        --member "serviceAccount:$PROJECT_NUMBER@cloudbuild.gserviceaccount.com" \
+        --role roles/run.admin
 
-    gcloud iam service-accounts add-iam-policy-binding $PROJECT_NUMBER-compute@developer.gserviceaccount.com --member "serviceAccount:$PROJECT_NUMBER@cloudbuild.gserviceaccount.com" --role "roles/iam.serviceAccountUser"    
+    gcloud iam service-accounts add-iam-policy-binding \
+        $PROJECT_NUMBER-compute@developer.gserviceaccount.com \
+        --member "serviceAccount:$PROJECT_NUMBER@cloudbuild.gserviceaccount.com" \
+        --role "roles/iam.serviceAccountUser"    
 
-    gcloud projects add-iam-policy-binding $PROJECT_ID --condition=expression='resource.name.startsWith("projects/$PROJECT_NUMBER/secrets/connectionstrings")',title="Access connection string secret" --role=roles/secretmanager.secretAccessor --member=serviceAccount:$PROJECT_NUMBER-compute@developer.gserviceaccount.com
+    gcloud projects add-iam-policy-binding $PROJECT_ID \
+        --role=roles/secretmanager.secretAccessor \
+        --member=serviceAccount:$PROJECT_NUMBER-compute@developer.gserviceaccount.com
     ```
 
 1. Create `cloudbuild.yaml` in the solution directory as below. Cloud Build will automatically substitute the `$PROJECT_ID` and `$BUILD_ID` when run. 

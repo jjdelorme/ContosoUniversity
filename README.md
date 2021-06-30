@@ -541,8 +541,7 @@ While your application is now deployed and running, one issue is that your datab
         }
     ```
 
-1. Add `Secret Manager Secret Accessor` to the Cloud Run service account. For instructions, see [the Cloud run documentation](https://cloud.google.com/run/docs/configuring/secrets#access-secret).
-    ![Secret Permissions](_figures/secretpermissions.png)
+1. Give the `Secret Manager Secret Accessor` role to the Cloud Run service account. For instructions, see [the Cloud run documentation](https://cloud.google.com/run/docs/configuring/secrets#access-secret).
 
 ## Adding Cloud Logging and Cloud Monitoring
 In this section, you centralize logging and monitoring.  It's common for Cloud Native applications to adopt the [Twelve-Factor App](https://12factor.net/logs) pattern and treat logs as streams.  ASP.NET Core by default [writes logs](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/?view=aspnetcore-5.0) to `stdout` as desired.  By default, all Cloud Run logs written to `stdout` by the container will be available in [Cloud Logging](https://cloud.google.com/logging).  However, [structured logging](https://cloud.google.com/logging/docs/structured-logging) allows you to make more sense of the logs, and  enabled easier querying, with machine and human readability.
@@ -569,7 +568,7 @@ There are several ways to get ASP.NET to automatically structure the logs withou
                     });
     ```
 
-1. You'll notice we only use this if we're running production as you don't want your production logs to get mixed with your local debugging or other environments.  This is also driven off the standard `ASPNETCORE_ENVIRONMENT` environment variable that we set earlier.  [By default](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-5.0#environments) if you do not set this ASP.NET Core  uses the value `Production`.
+   The application uses Cloud Logging only for production environments, such as when the application is deployed to Cloud Run. This is also driven off the standard `ASPNETCORE_ENVIRONMENT` environment variable that you set earlier. If you don't set this variable, ASP.NET Core uses the value `Production` [By default](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-5.0#environments).
 
 ## Putting it all together
 

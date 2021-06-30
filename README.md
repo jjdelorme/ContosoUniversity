@@ -572,7 +572,7 @@ There are several ways to get ASP.NET to automatically structure the logs withou
 
 ## Putting it all together
 
-At this stage, you're now using Cloud Build to build and publish rour container to Container Registry, Secret Manager to store the connection string, and Cloud Run to run your application.  To pull all of these actions together, in this section you  create `cloudbuild.yaml` to automate your build and deployment. Cloud Build can even be configured to run when you push to your git repository, for example to enable continuous integration and continuous deployment (CI/CD).  
+At this stage, you're now using Cloud Build to build and publish rour container to Container Registry, Secret Manager to store the connection string, and Cloud Run to run your application.  To pull all of these actions together, in this section you  create the `cloudbuild.yaml` file to automate your build and deployment. Cloud Build can even be configured to run when you push to your git repository, for example to enable continuous integration and continuous deployment (CI/CD).  
 
 1. Ensure you have the proper permissions for Cloud Build to deploy to Cloud Run. For instructions on how to enable Service Account permissions, see the [Deploying to Cloud Run How-to Guide](https://cloud.google.com/build/docs/deploying-builds/deploy-cloud-run#before_you_begin):
 ![Cloud Build Permissions](_figures/cloudbuildpermissions.png)
@@ -600,7 +600,7 @@ At this stage, you're now using Cloud Build to build and publish rour container 
         --member=serviceAccount:$PROJECT_NUMBER-compute@developer.gserviceaccount.com
     ```
 
-1. Create `cloudbuild.yaml` in the solution directory, as showing in the following code:
+1. Create `cloudbuild.yaml` in the solution directory, as shown in the following code:
 
     ```yaml
     steps:

@@ -35,17 +35,29 @@ git clone https://github.com/jjdelorme/ContosoUniversity
 git checkout start
 ```
 
+### Enabling Google APIs
+
+If you've not already done so, make sure to enable the following APIs in your project. In Cloud Shell, use the following command:
+
+```bash
+gcloud services enable \
+    containerregistry.googleapis.com \
+    run.googleapis.com \
+    compute.googleapis.com \
+    cloudbuild.googleapis.com
+```
+
 ### Setup Cloud SQL for SQL Server
 
 In this section, you set up the Google Cloud SQL for SQL Server instance.
 
-1. [Create an instance](https://cloud.google.com/sql/docs/sqlserver/create-instance?hl=en_US>).  For the purposes of this tutorial you can use the SQL Server 2017 Express Edition which is free to license.  For this tutorial we're going to put all resources in the `us-central1` region.  If you prefer to use a different region, make sure to change that in all region in this tutorial.
+1. [Create an instance](https://cloud.google.com/sql/docs/sqlserver/create-instance?hl=en_US>).  For the purposes of this tutorial you can use the SQL Server 2017 Express Edition which is free to license.  For this tutorial, you put all resources in the `us-central1` region.  If you prefer to use a different region, make sure to change that in all region in this tutorial.
 
 1. [Create a database](https://cloud.google.com/sql/docs/sqlserver/create-manage-databases?hl=en_US>) and name it as follows: `ContosoUniversity` 
 
 1. [Add a user](https://cloud.google.com/sql/docs/sqlserver/create-manage-users?hl=en_US) to connect to the database.    
 
-1. Make sure that the IP that you want to connect to the database from is added to your [authorized networks](https://cloud.google.com/sql/docs/sqlserver/configure-ip?hl=en_US#console). Alternatively, for the purposes of this tutorial only (**and never in production**), you can allow all public IPs (0.0.0.0/0) to connect, as shown in the following screenshot:
+1. Make sure that the IP address that you want to connect to the database from is added to your [authorized networks](https://cloud.google.com/sql/docs/sqlserver/configure-ip?hl=en_US#console). Alternatively, for the purposes of this tutorial, you can allow all public IPs (0.0.0.0/0) to connect, as shown in the following screenshot:
 ![Allow All Public IPs](_figures/allowpublicip.png)
 
 ### Connect to the database
@@ -80,7 +92,7 @@ Confirm the application builds and functions as desired before starting the migr
 
 ## Migrate
 
-In this section, you use the [.NET Upgrade Assistant](https://dotnet.microsoft.com/platform/upgrade-assistant/) to automate some steps of the migration to .NET 5.  This will get you about 80% of the way there for this tutorial application. This automation is also a good starting point for most .NET Framework to .NET 5 upgrades. 
+In this section, you use the [.NET Upgrade Assistant](https://dotnet.microsoft.com/platform/upgrade-assistant/) to automate some steps of the migration to .NET 5. This will get you about 80% of the way there for this tutorial application. This automation is also a good starting point for most .NET Framework to .NET 5 upgrades. 
 
 1. Close your Visual Studio instance
 
@@ -265,7 +277,7 @@ TODO: Need to confirm if this is being bundled/changed:
 
 ### Return Results
 
-ASP.NET MVC Core uses different return results for the  action methods for the controller. Since there are many of these objects scattered throughout the `ContosoUniversity\Controllers\` classes, this is best done by looking at the build errors table for your IDE. Look for errors in controllers action methods that are because of an unknown return type. 
+ASP.NET MVC Core uses different return result objects for the controller's action methods. Because there are many of these objects scattered throughout the `ContosoUniversity\Controllers\` classes, to replace all malformed return results, we recommend that you look at the build errors table for your IDE. Look for errors in controllers action methods that are because of an unknown return type: 
 
 ```diff
 -                return new StatusCodeResult(HttpStatusCode.BadRequest);
@@ -447,18 +459,6 @@ docker run -it contosouniversity:v1 -p 8080:8080
 
 This command will run the application and expose port 8080 to the `localhost`, so that you can launch a browser at `http://localhost:8080` on your local machine to test.  
 
-### Enabling Google APIs
-
-If you've not already done so, make sure to enable the following APIs in your project.  You can do this with the following command, easiest if done in the Google Cloud shell:
-
-```bash
-gcloud services enable \
-    containerregistry.googleapis.com \
-    run.googleapis.com \
-    compute.googleapis.com \
-    cloudbuild.googleapis.com
-```
-
 ### Using Cloud Build
 
 Rather than running Docker locally, you can use the managed [Cloud Build](https://cloud.google.com/build) service to build the container and automatically push it to your Google Container Registry.
@@ -568,7 +568,7 @@ There are several ways to get ASP.NET to automatically structure the logs withou
                     });
     ```
 
-   The application uses Cloud Logging only for production environments, such as when the application is deployed to Cloud Run. This is also driven off the standard `ASPNETCORE_ENVIRONMENT` environment variable that you set earlier. If you don't set this variable, ASP.NET Core uses the value `Production` [By default](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-5.0#environments).
+   The application uses Cloud Logging only for production environments, such as when the application is deployed to Cloud Run. The `ENVIRONMENT` setting is controlled by the `ASPNETCORE_ENVIRONMENT` environment variable that you set earlier. If you don't set this variable, ASP.NET Core uses the value `Production` [By default](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-5.0#environments).
 
 ## Putting it all together
 
@@ -631,7 +631,7 @@ At this stage, you're now using Cloud Build to build and publish rour container 
     - gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID
     ```
 
-1. Cloud Build will automatically substitue the `$PROJECT_ID` and `$BUILD_ID` when you run it. As an optional step, you can create a `.gitignore` file (note that the filename starts with a period (.) and has no extension)  When you check in files to git it will explicitly ignore these files and files that match these patterns.  Cloud Build leverages this functionality to ignore these files as well, so it's a good idea to create a `.gitignore` file at this stage:
+1. Cloud Build will automatically substitute the `$PROJECT_ID` and `$BUILD_ID` when you run it. As an optional step, you can create a `.gitignore` file (note that the filename starts with a period (.) and has no extension)  When you check in files to git it will explicitly ignore these files and files that match these patterns.  Cloud Build leverages this functionality to ignore these files as well, so it's a good idea to create a `.gitignore` file at this stage:
     ```
     .vscode/
     **/bin/

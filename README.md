@@ -17,23 +17,36 @@ This tutorial provides end-to-end guidance on how to migrate the Contoso Univers
 
 ## Prerequisites
 
-1. You must have access to [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) – either download and install the free Community edition, or if you have a licesnse for Visual Studio, then any of the licensed editions.
+1. Provision the Windows sandbox VM containing all required binaries and Cloud SQL instance by using [terraform](https://www.terraform.io/intro/index.html). To do this, open a new cloud shell from the [Google Cloud Console](https://console.cloud.google.com).
 
-1. (Optional) [Install Docker](https://docs.docker.com/docker-for-windows/install/) on your local machine. If you can't install Docker in your environment, there is a workaround later in this tutorial.
+1. Within cloud shell, clone this repo and change to the working directory using the following commands.
 
-1. Install [.NET 5 SDK](https://dotnet.microsoft.com/download/dotnet/5.0)
+    ```shell
+    git clone https://github.com/jjdelorme/ContosoUniversity
 
-1. Download and install the Google Cloud SDK following these [instructions](https://cloud.google.com/sdk/docs/install#windows).
+    cd ContosoUniversity/terraform-sandbox-setup
+    ```
+1. Examine the terraform .tf files and update the local values within `compute.tf` and `database.tf` using an editor of your choice.
 
-## Set up the sample
+1. Within `compute.tf`, change the values for `project_id` to your desired project ([see identifying project ID](https://cloud.google.com/resource-manager/docs/creating-managing-projects#identifying_projects)). Leave the remaining values as is.
 
-Either [download the original Microsoft sample](https://webpifeed.blob.core.windows.net/webpifeed/Partners/ASP.NET%20MVC%20Application%20Using%20Entity%20Framework%20Code%20First.zip) and unzip it to a local directory, or clone this repository and checkout the `start` tag:
+1. Within `database.tf`, you may optionally change the value for `db_region` to your desired region ([see GCP regions](https://cloud.google.com/compute/docs/regions-zones)).
 
-```cmd
-git clone https://github.com/jjdelorme/ContosoUniversity
+1. Use terraform to provision the cloud resources. On Cloud Shell, this comes as a pre-installed binary.
 
-git checkout start
-```
+    ```shell
+    terraform apply
+    ```
+
+1. Optionally, you can use terraform to clean up the cloud resources once you've finished the lab.
+
+    ```shell
+    terraform destroy
+    ```
+
+### Once the resources successfully provision, [connect to your Windows VM](https://cloud.google.com/compute/docs/instances/connecting-to-windows) for the rest of the lab.
+
+<br>
 
 ### Enabling Google APIs
 
@@ -51,7 +64,7 @@ gcloud services enable \
 
 In this section, you set up the Google Cloud SQL for SQL Server instance.
 
-1. [Create an instance](https://cloud.google.com/sql/docs/sqlserver/create-instance?hl=en_US>).  For the purposes of this tutorial you can use the SQL Server 2017 Express Edition which is free to license.  For this tutorial, you put all resources in the `us-central1` region.  If you prefer to use a different region, make sure to change that in all region in this tutorial.
+1. Your Cloud SQL instance should already be provisioned in the [Prerequisites](#Prerequisites) section
 
 1. [Create a database](https://cloud.google.com/sql/docs/sqlserver/create-manage-databases?hl=en_US>) and name it as follows: `ContosoUniversity` 
 

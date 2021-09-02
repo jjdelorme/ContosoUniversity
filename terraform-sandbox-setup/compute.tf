@@ -15,41 +15,39 @@
  */
 
 locals {
-  name               = "tf-sandbox"
-  num_instances      = 1
-  machine_type       = "e2-standard-4"
-  project_id         = "injae-sandbox"
-  zone               = "australia-southeast1-b"
-  disk_image         = "injae-sandbox/contosouniversity-lab"
-  network            = "default"
-  network_tags       = ["allow-win-rdp-all"]
-}
-
-resource "random_id" "compute_randomchar" {
-  byte_length = 2
+  num_instances_compute = 1
+  machine_type_compute  = "e2-standard-4"
+  zone                  = "a"
+  disk_image_compute    = "injae-sandbox/contosouniversity-lab" 
+  disk_size_gb_compute  = 80
 }
 
 #############
 # Instances
 #############
 
+resource "random_id" "compute_randomchar" {
+  byte_length = 2
+}
+
 resource "google_compute_instance" "compute_instance" {
   provider = google
-  count    = local.num_instances
-  name     = "${local.name}-${random_id.compute_randomchar.hex}"
-  machine_type = local.machine_type
-  project  = local.project_id
-  zone     = local.zone
-  tags     = local.network_tags
+  count    = local.num_instances_compute
+  name     = "${var.name}-${random_id.compute_randomchar.hex}"
+  machine_type = local.machine_type_compute
+  project  = var.project_id
+  zone     = "${var.region}-${local.zone}"
+  tags     = [var.fw_name]
 
   boot_disk {
     initialize_params {
-      image = local.disk_image
+      size  = local.disk_size_gb_compute
+      image = local.disk_image_compute
     }
   }
 
   network_interface {
-    network            = local.network
+    network            = var.network
     access_config {}
 }
 

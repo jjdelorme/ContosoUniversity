@@ -16,22 +16,23 @@
 
 
 locals {
-  db_name              = "tf-sandbox-db"
-  db_region            = "australia-southeast1"
-  db_root_pw           = "P@55w0rd!"
+  db_root_pw        = "P@55w0rd!"
   database_version  = "SQLSERVER_2017_EXPRESS"  
   tier              = "db-custom-2-3840"
-  source = ["0.0.0.0"]
 }
+
+#############
+# Instances
+#############
 
 resource "random_id" "db_randomchar" {
   byte_length = 2
 }
 
 resource "google_sql_database_instance" "db_instance" {
-  name             = "${local.db_name}-${random_id.db_randomchar.hex}"
+  name             = "${var.name}-${random_id.db_randomchar.hex}"
   database_version = local.database_version
-  region           = local.db_region
+  region           = var.region
   root_password    = local.db_root_pw
 
   settings {
@@ -40,14 +41,9 @@ resource "google_sql_database_instance" "db_instance" {
     ip_configuration {
       ipv4_enabled = true
 
-      dynamic "authorized_networks" {
-        for_each = local.source
-        iterator = source
-
-        content {
-          name  = "allowed-${source.key}"
-          value = source.value
-        }
+      authorized_networks {
+        name  = "allowed-${var.fw_source_range}"
+        value = var.fw_source_range
       }
     }
   }

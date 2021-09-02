@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-locals {
-  fw_protocol       = "TCP"
-  fw_ports          = ["3389"]
+###################
+# Enable GCP APIs
+##################
+
+module "project-services" {
+  source  = "terraform-google-modules/project-factory/google//modules/project_services"
+  version = "10.1.1"
+
+  project_id      = var.project_id
+
+  activate_apis = [
+    "compute.googleapis.com",
+    "iam.googleapis.com",
+    "container.googleapis.com",
+    "containerregistry.googleapis.com",
+    "run.googleapis.com",
+    "cloudbuild.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
+    "servicenetworking.googleapis.com",
+    "sqladmin.googleapis.com"
+  ]
 }
-
-resource "google_compute_firewall" "firewall_win_rdp" {
-  name              = var.fw_name
-  network           = var.network
-
-  allow {
-    protocol        = local.fw_protocol
-    ports           = local.fw_ports
-  }
-
-  source_ranges     = [var.fw_source_range]
-
-}
-

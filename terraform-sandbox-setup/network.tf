@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-locals {
-  fw_protocol       = "TCP"
-  fw_ports          = ["3389"]
+
+#############
+# VPC
+#############
+
+resource "google_compute_network" "vpc_network" {
+  project                 = var.project_id
+  name                    = var.network
+  auto_create_subnetworks = false
 }
 
-resource "google_compute_firewall" "firewall_win_rdp" {
-  name              = var.fw_name
-  network           = var.network
 
-  allow {
-    protocol        = local.fw_protocol
-    ports           = local.fw_ports
-  }
+#############
+# Subnets
+#############
 
-  source_ranges     = [var.fw_source_range]
-
+resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
+  name          = var.network_vpc_subnet1
+  ip_cidr_range = var.network_vpc_subnet1_ip_range
+  region        = var.region
+  network       = google_compute_network.vpc_network.name
 }
-

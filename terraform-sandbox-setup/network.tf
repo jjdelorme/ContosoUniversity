@@ -29,10 +29,24 @@ resource "google_compute_network" "vpc_network" {
 #############
 # Subnets
 #############
-
-resource "google_compute_subnetwork" "network-with-private-secondary-ip-ranges" {
+resource "google_compute_subnetwork" "subnet1" {
   name          = var.network_vpc_subnet1
   ip_cidr_range = var.network_vpc_subnet1_ip_range
+  region        = var.region
+  network       = google_compute_network.vpc_network.name
+}
+
+
+resource "google_compute_subnetwork" "gke-subnet-pods" {
+  name          = var.network_vpc_subnet_gke_pods
+  ip_cidr_range = var.network_vpc_subnet_gke_pods_ip_range
+  region        = var.region
+  network       = google_compute_network.vpc_network.name
+}
+
+resource "google_compute_subnetwork" "gke-subnet-services" {
+  name          = var.network_vpc_subnet_gke_services
+  ip_cidr_range = var.network_vpc_subnet_gke_services_ip_range
   region        = var.region
   network       = google_compute_network.vpc_network.name
 }

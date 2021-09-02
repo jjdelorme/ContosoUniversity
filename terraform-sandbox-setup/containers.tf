@@ -18,8 +18,6 @@
 locals {
   zone1                    = "a"
   zone2                    = "b"
-  network_ip_range_pods    = "192.168.100.0/21" #see parent range from var.vpc_subnet1 value. Valid inputs /8 to /21
-  network_ip_range_services = "192.168.104.0/21" #see parent range from var.vpc_subnet1 value. Valid inputs /8 to /21
   num_instances_containers = 1
   machine_type_containers  = "e2-medium"
   disk_type_containers     = "pd-standard"
@@ -43,8 +41,8 @@ module "gke" {
   zones                      = ["${var.region}-${local.zone1}","${var.region}-${local.zone2}"]
   network                    = var.network
   subnetwork                 = var.network_vpc_subnet1
-  ip_range_pods              = local.network_ip_range_pods
-  ip_range_services          = local.network_ip_range_services
+  ip_range_pods              = var.network_vpc_subnet_gke_pods
+  ip_range_services          = var.network_vpc_subnet_gke_services
   http_load_balancing        = false
   horizontal_pod_autoscaling = false
   network_policy             = false

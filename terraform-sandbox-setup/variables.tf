@@ -33,9 +33,19 @@ variable "network_vpc_subnet1" {
   default     = "subnet1"
 }
 
+variable "network_vpc_subnet1" {
+  description = "Name of the VPC subnetwork 1"
+  default     = "subnet2"
+}
+
 variable "network_vpc_subnet1_ip_range" {
   description = "RFC1918 IP range for VPC in CIDR format eg. 192.168.0.0/16"
-  default     = "192.168.0.0/16"
+  default     = "192.168.100.0/21"
+}
+
+variable "network_vpc_subnet2_ip_range" {
+  description = "RFC1918 IP range for VPC in CIDR format eg. 192.168.0.0/16"
+  default     = "192.168.104.0/21"
 }
 
 variable "name" {

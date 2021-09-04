@@ -19,9 +19,9 @@ locals {
   zone1                    = "a"
   zone2                    = "b"
   num_instances_containers = 1
-  machine_type_containers  = "e2-medium"
-  disk_type_containers     = "pd-standard"
-  disk_size_gb_containers  = 40
+#  machine_type_containers  = "e2-medium"
+ # disk_type_containers     = "pd-standard"
+  #disk_size_gb_containers  = 40
 }
 
 

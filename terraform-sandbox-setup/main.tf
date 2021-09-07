@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
- locals {
-  fw_protocol       = "TCP"
-  fw_ports          = ["3389"]
-  num_instances         = 1
-  machine_type          = "e2-standard-4"
-  zone1                 = "a"
-  zone2                 = "b"
-  disk_image_compute    = "injae-sandbox/contosouniversity-lab" 
-  disk_size_gb_compute  = 80
-  disk_size_gb_containers  = 40
-  disk_type_containers  = "pd-standard"
-  db_root_pw        = "P@55w0rd!"
-  database_version  = "SQLSERVER_2017_EXPRESS"  
-  tier              = "db-custom-2-3840"
+locals {
+  fw_protocol             = "TCP"
+  fw_ports                = ["3389"]
+  num_instances           = 1
+  machine_type            = "e2-standard-4"
+  disk_image_compute      = "injae-sandbox/contosouniversity-lab"
+  disk_size_gb_compute    = 80
+  disk_size_gb_containers = 40
+  disk_type_containers    = "pd-balanced"
+  db_root_pw              = "P@55w0rd!"
+  database_version        = "SQLSERVER_2017_EXPRESS"
+  tier                    = "db-custom-2-3840"
 }
 
 ################## HELPER RESOURCES ##################
@@ -38,6 +36,29 @@ resource "random_id" "randomchar" {
 
 ################## HELPER RESOURCES ##################
 
+###################
+# Enable GCP APIs
+##################
+
+module "project-services" {
+  source  = "terraform-google-modules/project-factory/google//modules/project_services"
+  version = "10.1.1"
+
+  project_id = var.project_id
+
+  activate_apis = [
+    "compute.googleapis.com",
+    "iam.googleapis.com",
+    "container.googleapis.com",
+    "containerregistry.googleapis.com",
+    "run.googleapis.com",
+    "cloudbuild.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
+    "servicenetworking.googleapis.com",
+    "sqladmin.googleapis.com"
+  ]
+}
+
 ################## NETWORK RESOURCES ##################
 
 #############
@@ -45,33 +66,22 @@ resource "random_id" "randomchar" {
 #############
 
 resource "google_compute_network" "vpc_network" {
-  project                 = var.project_id
-  name                    = var.network
+  project                 = var.project_id 
+  name                    = "${var.network}-${random_id.randomchar.hex}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_firewall" "firewall_win_rdp" {
-  name              = var.fw_name
-  network           = var.network
+  project = var.project_id
+  name    = var.fw_name
+  network = google_compute_network.vpc_network.name
 
   allow {
-    protocol        = local.fw_protocol
-    ports           = local.fw_ports
+    protocol = local.fw_protocol
+    ports    = local.fw_ports
   }
 
-  source_ranges     = [var.fw_source_range]
-}
-
-resource "google_compute_firewall" "firewall_win_rdp" {
-  name              = var.fw_name
-  network           = var.network
-
-  allow {
-    protocol        = local.fw_protocol
-    ports           = local.fw_ports
-  }
-
-  source_ranges     = [var.fw_source_range]
+  source_ranges = [var.fw_source_range]
 }
 
 #############
@@ -79,25 +89,21 @@ resource "google_compute_firewall" "firewall_win_rdp" {
 #############
 
 resource "google_compute_subnetwork" "subnet1" {
-  name          = var.network_vpc_subnet1
+  project       = var.project_id
+  name          = "${var.network_vpc_subnet1}-${random_id.randomchar.hex}"
   ip_cidr_range = var.network_vpc_subnet1_ip_range
   region        = var.region
   network       = google_compute_network.vpc_network.name
-}
-
-
-resource "google_compute_subnetwork" "gke_subnet_pods" {
-  name          = var.network_vpc_subnet_gke_pods
-  ip_cidr_range = var.network_vpc_subnet_gke_pods_ip_range
-  region        = var.region
-  network       = google_compute_network.vpc_network.name
-}
-
-resource "google_compute_subnetwork" "gke_subnet_services" {
-  name          = var.network_vpc_subnet_gke_services
-  ip_cidr_range = var.network_vpc_subnet_gke_services_ip_range
-  region        = var.region
-  network       = google_compute_network.vpc_network.name
+  secondary_ip_range = [
+    {
+      range_name    = var.network_vpc_subnet_gke_pods
+      ip_cidr_range = var.network_vpc_subnet_gke_pods_ip_range
+    },
+    {
+      range_name    = var.network_vpc_subnet_gke_services
+      ip_cidr_range = var.network_vpc_subnet_gke_services_ip_range
+    }
+  ]
 }
 
 ################## NETWORK RESOURCES ##################
@@ -110,13 +116,13 @@ resource "google_compute_subnetwork" "gke_subnet_services" {
 
 
 resource "google_compute_instance" "compute_instance" {
-  provider = google
-  count    = local.num_instances
-  name     = "${var.name}-${random_id.randomchar.hex}"
+  provider     = google
+  count        = local.num_instances
+  name         = "${var.name}-${random_id.randomchar.hex}"
   machine_type = local.machine_type
-  project  = var.project_id
-  zone     = "${var.region}-${local.zone1}"
-  tags     = [var.fw_name]
+  project      = var.project_id
+  zone         = var.zones[0]
+  tags         = [var.fw_name]
 
   boot_disk {
     initialize_params {
@@ -126,75 +132,62 @@ resource "google_compute_instance" "compute_instance" {
   }
 
   network_interface {
-    network            = google_compute_network.vpc_network.name
+    subnetwork = google_compute_subnetwork.subnet1.self_link
     access_config {}
-}
+  }
 
   service_account {
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
     scopes = ["cloud-platform"]
-}
+  }
 
-deletion_protection = false
-
+  deletion_protection = false
 }
 
 #####################
 # Kubernetes cluster
 #####################
 
-module "gke" {
-  source                     = "terraform-google-modules/kubernetes-engine/google"
-  project_id                 = var.project_id
-  name                       = "${var.name}-${random_id.randomchar.hex}"
-  region                     = var.region
-  zones                      = ["${var.region}-${local.zone1}","${var.region}-${local.zone2}"]
-  network                    = google_compute_network.vpc_network.name
-  subnetwork                 = google_compute_subnetwork.subnet1.name
-  ip_range_pods              = google_compute_subnetwork.gke_subnet_pods.name
-  ip_range_services          = google_compute_subnetwork.gke_subnet_services.name
-  http_load_balancing        = false
-  horizontal_pod_autoscaling = false
-  network_policy             = false
+resource "google_container_cluster" "gke_windows" {
+  project         = var.project_id
+  location        = var.region
+  name            = "${var.name}-${random_id.randomchar.hex}"
+  network         = google_compute_network.vpc_network.self_link
+  subnetwork      = google_compute_subnetwork.subnet1.self_link
+  networking_mode = "VPC_NATIVE"
+  ip_allocation_policy {
+    cluster_secondary_range_name  = var.network_vpc_subnet_gke_pods
+    services_secondary_range_name = var.network_vpc_subnet_gke_services
+  }
+  remove_default_node_pool = false # Windows node pool needs a linux pool
+  initial_node_count       = 1
+  release_channel {
+    channel = "REGULAR"
+  }
 
-  node_pools = [
-    {
-      name                      = "${var.name}-default-node-pool"
-      machine_type              = local.machine_type
-      node_locations            = "${var.region}-${local.zone1},${var.region}-${local.zone2}"
-      min_count                 = local.num_instances
-      max_count                 = local.num_instances
-      local_ssd_count           = 0
-      disk_size_gb              = local.disk_size_gb_containers
-      disk_type                 = local.disk_type_containers
-      image_type                = "COS"
-      auto_repair               = true
-      auto_upgrade              = true
-      preemptible               = false
-    },
-    {
-      name                      = "${var.name}-windows-node-pool"
-      machine_type              = local.machine_type
-      node_locations            = "${var.region}-${local.zone1},${var.region}-${local.zone2}"
-      min_count                 = local.num_instances
-      max_count                 = local.num_instances
-      local_ssd_count           = 0
-      disk_size_gb              = local.disk_size_gb_containers
-      disk_type                 = local.disk_type_containers
-      image_type                = "WINDOWS_LTSC",
-      release_channel           = "regular"
-      auto_repair               = true
-      auto_upgrade              = false
-      preemptible               = false
-    },
-  ]
+}
 
-  node_pools_labels = {
-    all = {}
+resource "google_container_node_pool" "windows_nodepool" {
+  project            = var.project_id
+  cluster            = google_container_cluster.gke_windows.id
+  location           = var.region
+  name               = "${var.name}-windows-node-pool"
+  node_locations     = var.zones
+  initial_node_count = 1
+  node_config {
+    machine_type = local.machine_type
+    disk_size_gb = local.disk_size_gb_containers
+    disk_type    = local.disk_type_containers
+    image_type   = "WINDOWS_LTSC"
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+      "https://www.googleapis.com/auth/devstorage.read_only"
 
-    default-node-pool = {
-      default-node-pool = true
-    }
+    ]
+  }
+  timeouts {
+    create = "60m"
   }
 }
 
@@ -207,6 +200,7 @@ module "gke" {
 #############
 
 resource "google_sql_database_instance" "db_instance" {
+  project          = var.project_id
   name             = "${var.name}-${random_id.randomchar.hex}"
   database_version = local.database_version
   region           = var.region

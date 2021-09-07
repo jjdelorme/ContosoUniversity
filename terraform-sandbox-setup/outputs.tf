@@ -22,13 +22,25 @@ output "instances_self_links" {
 output "instances_details" {
   description = "List of all details for compute instances"
   value       = google_compute_instance.compute_instance.*
-  sensitive   = true 
+  sensitive   = true
 }
 
 output "firewall_details" {
   description = "List of all details for instance firewall"
   value       = google_compute_firewall.firewall_win_rdp.*
-  sensitive   = true 
+  sensitive   = true
+}
+
+output "gke_details" {
+  description = "List of all details for container instances"
+  value       = google_container_cluster.gke_windows.*
+  sensitive   = true
+}
+
+output "gke_windows_nodepool_details" {
+  description = "List of all details for container instances"
+  value       = google_container_node_pool.windows_nodepool.*
+  sensitive   = true
 }
 
 output "database_self_links" {
@@ -39,5 +51,5 @@ output "database_self_links" {
 output "database_details" {
   description = "List of all details for cloudsql instances"
   value       = google_sql_database_instance.db_instance.*
-  sensitive   = true 
+  sensitive   = true
 }

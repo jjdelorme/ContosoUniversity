@@ -15,60 +15,54 @@
  */
 
 variable "project_id" {
-  description = "Name of the project ID [REQUIRED]"
+  description = "Name of the project ID"
 }
 
 variable "region" {
   description = "Name of the region"
-  default     = "australia-southeast1"
 }
 
 variable "network" {
   description = "Name of the VPC network"
-  default     = "contosovpc"
+}
+
+variable "zones" {
+  type        = list(string)
+  description = "The zones to host the resources in (minimum of 2)"
 }
 
 variable "network_vpc_subnet1" {
   description = "Name of the VPC subnetwork 1"
-  default     = "subnet1"
+}
+
+variable "network_vpc_subnet1_ip_range" {
+  description = "RFC1918 IP range for VPC in CIDR format eg. 192.168.0.0/21"
 }
 
 variable "network_vpc_subnet_gke_pods" {
   description = "Name of the VPC subnetwork for GKE pods"
-  default     = "subnet2"
-}
-
-variable "network_vpc_subnet_gke_services" {
-  description = "Name of the VPC subnetwork for GKE services"
-  default     = "subnet3"
-}
-
-variable "network_vpc_subnet1_ip_range" {
-  description = "RFC1918 IP range for VPC in CIDR format eg. 192.168.0.0/21" 
-  default     = "192.168.0.0/21"
 }
 
 variable "network_vpc_subnet_gke_pods_ip_range" {
   description = "RFC1918 IP range for VPC in CIDR format eg. 192.168.4.0/21" # minimum of /21 to /8
-  default     = "192.168.104.0/21"
+}
+
+variable "network_vpc_subnet_gke_services" {
+  description = "Name of the VPC subnetwork for GKE services"
 }
 
 variable "network_vpc_subnet_gke_services_ip_range" {
   description = "RFC1918 IP range for VPC in CIDR format eg. 192.168.8.0/21" # minimum of /21 to /8
-  default     = "192.168.108.0/21"
 }
 
 variable "name" {
   description = "Name of the resource"
-  default     = "contosouni"
 }
 
 variable "fw_name" {
   description = "Name of the firewall resource"
-  default     = "allow-win-rdp-all"
 }
 
 variable "fw_source_range" {
   description = "allowed source IP address for firewall in CIDR format including [] eg. [1.2.3.4/32]"
-  default     = "0.0.0.0/0"
 }

@@ -15,54 +15,44 @@ This tutorial provides end-to-end guidance on how to migrate the Contoso Univers
 * [Adding Google Cloud Logging & Monitoring](#Adding-Google-Cloud-Logging-&-Monitoring)
 * [Putting it all together](#Putting-it-all-together)
 
-## Prerequisites
+# Prerequisites
 
-1. Provision the Windows sandbox VM containing all required binaries and Cloud SQL instance by using [terraform](https://www.terraform.io/intro/index.html). To do this, open a new cloud shell from the [Google Cloud Console](https://console.cloud.google.com).
-
-1. Within cloud shell, clone this repo and change to the working directory using the following commands.
+1. Clone this repo and change to the working directory using the following commands.
 
     ```shell
-    git clone https://github.com/jjdelorme/ContosoUniversity
+    git clone https://github.com/saltysoup/ContosoUniversity
 
-    cd ContosoUniversity/terraform-sandbox-setup
+    cd ContosoUniversity
     ```
-1. Examine the terraform .tf files and update the local values within `compute.tf` and `database.tf` using an editor of your choice.
 
-1. Within `compute.tf`, change the values for `project_id` to your desired project ([see identifying project ID](https://cloud.google.com/resource-manager/docs/creating-managing-projects#identifying_projects)). Leave the remaining values as is.
+1. Provision the lab resources using [terraform](https://www.terraform.io/intro/index.html). If you don't have terraform installed locally, you can use Cloud Shell within the GCP Console. This deployment includes a GKE Windows Cluster, a dev sandbox VM w/ Visual Studio & all required binaries and a Cloud SQL instance. 
 
-1. Within `database.tf`, you may optionally change the value for `db_region` to your desired region ([see GCP regions](https://cloud.google.com/compute/docs/regions-zones)).
+    ```shell
+    cd terraform-sandbox-setup
+    ```
+    
+1. (Optional) Examine the `terraform.tfvars` file and update the values as desired.
 
-1. Use terraform to provision the cloud resources. On Cloud Shell, this comes as a pre-installed binary.
+1. Use terraform to provision the cloud resources.
 
     ```shell
     terraform apply
     ```
 
-1. Optionally, you can use terraform to clean up the cloud resources once you've finished the lab.
+1. (Optional), you can also use terraform to clean up the cloud resources once you've finished the lab.
 
     ```shell
     terraform destroy
     ```
 
-### Once the resources successfully provision, [connect to your Windows VM](https://cloud.google.com/compute/docs/instances/connecting-to-windows) for the rest of the lab.
+# Setup
+
+### Once the resources successfully provision through terraform, [connect to your Windows VM](https://cloud.google.com/compute/docs/instances/connecting-to-windows) for the rest of the lab.
 
 <br>
 
-### Enabling Google APIs
-
-If you've not already done so, make sure to enable the following APIs in your project. In Cloud Shell, use the following command:
-
-```bash
-gcloud services enable \
-    containerregistry.googleapis.com \
-    run.googleapis.com \
-    compute.googleapis.com \
-    cloudbuild.googleapis.com
-```
-
-### Setup Cloud SQL for SQL Server
-
-In this section, you set up the Google Cloud SQL for SQL Server instance.
+## Setting up Cloud SQL for SQL Server
+In this section, you set up the application database within Google Cloud SQL for SQL Server instance.
 
 1. Your Cloud SQL instance should already be provisioned in the [Prerequisites](#Prerequisites) section
 
@@ -70,18 +60,26 @@ In this section, you set up the Google Cloud SQL for SQL Server instance.
 
 1. [Add a user](https://cloud.google.com/sql/docs/sqlserver/create-manage-users?hl=en_US) to connect to the database.    
 
-1. Make sure that the IP address that you want to connect to the database from is added to your [authorized networks](https://cloud.google.com/sql/docs/sqlserver/configure-ip?hl=en_US#console). Alternatively, for the purposes of this tutorial, you can allow all public IPs (0.0.0.0/0) to connect, as shown in the following screenshot:
+1. Verify that the IP address that you want to connect to the database from is added to your [authorized networks](https://cloud.google.com/sql/docs/sqlserver/configure-ip?hl=en_US#console). Alternatively, for the purposes of this tutorial, you can allow all public IPs (0.0.0.0/0) to connect, as shown in the following screenshot:
 ![Allow All Public IPs](_figures/allowpublicip.png)
 
-### Connect to the database
+## Connect to the database
+In this section, you will be seeding the database from the dev sandbox created previously.
+
+1. Within the newly created Windows sandbox VM, clone the repo again and switch to the `vm` branch.
+    ```shell
+    git clone https://github.com/saltysoup/ContosoUniversity
+
+    git checkout vm
+    ```
 
 1. Open the `ContosoUniversity.sln` solution file with Visual Studio 2019.
 
-1. Using the Cloud SQL Server IP address, database name, user and password you created preceding, modify your connection string in the `Web.config` file:
+1. Using the Cloud SQL Server IP address, database name, user and password you created preceding, modify your connection string in the `Web.config` file by replacing the placeholder values `<DBPUBLICIP>` `<DBUSER>` `<DBPWD>`:
 
    ```XML
    <connectionStrings>
-     <add name="SchoolContext" connectionString="Data Source=1.1.1.1;Initial Catalog=ContosoUniversity;User ID=sqlserver;Password=XXXXX;" providerName="System.Data.SqlClient" />
+     <add name="SchoolContext" connectionString="Data Source=<DBPUBLICIP>;Initial Catalog=ContosoUniversity;User ID=<DBUSER>;Password=<DBPWD>;" providerName="System.Data.SqlClient" />
    </connectionStrings>
    ```
 
@@ -646,17 +644,39 @@ At this stage, you're now using Cloud Build to build and publish rour container 
 
 1. Cloud Build will automatically substitute the `$PROJECT_ID` and `$BUILD_ID` when you run it. As an optional step, you can create a `.gitignore` file (note that the filename starts with a period (.) and has no extension)  When you check in files to git it will explicitly ignore these files and files that match these patterns.  Cloud Build leverages this functionality to ignore these files as well, so it's a good idea to create a `.gitignore` file at this stage:
     ```
+    # Exclude local binaries
+    .DS_Store/
+    .vs/
     .vscode/
     **/bin/
     **/obj/
     **/wwwroot/
-    service_account.json
     **/appsettings.Development.json
     *.csproj.user
 
     # Exclude git history and configuration.
     .git/
     .gitignore
+
+    # Compiled files
+    *.tfstate
+    *.tfstate.backup
+    *.tfstate.lock.info
+
+    # logs
+    *.log
+
+    # Directories
+    .terraform/
+
+    # SSH Keys
+    *.pem
+
+    # Backup files
+    *.bak
+
+    # Ignored Terraform files
+    *gitignore*.tf
     ```
 
 1. Submit the build from the solution directory:

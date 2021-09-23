@@ -1,4 +1,3 @@
-project_id                               = "injae-sandbox"
 region                                   = "australia-southeast1"
 zones                                    = ["australia-southeast1-a", "australia-southeast1-b"]
 network                                  = "contosovpc"

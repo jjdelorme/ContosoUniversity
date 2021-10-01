@@ -129,11 +129,11 @@ In this section, you use the [.NET Upgrade Assistant](https://dotnet.microsoft.c
     ~/.dotnet/tools/upgrade-assistant.exe upgrade .\ContosoUniversity.sln --non-interactive --skip-backup
     ```
 
-    ![Upgrade Assistant](./_figures/upgrade-assistant.png)
+    ![Upgrade Assistant](./_figures/upgrade-assistant.PNG)
 
 1. This should kick off the refactor process and complete in a few minutes.
 
-    ![Upgrade Assistant 2](./_figures/upgrade-assistant2.png)
+    ![Upgrade Assistant 2](./_figures/upgrade-assistant2.PNG)
 
 The output of the Upgrade Assistant is the converted .NET 5 project.  A `log.txt` file contains a summary of the changes.  If you cloned the repository in an earlier step, you can get a more detailed comparision of the file differences after conversion with the following command:
 

@@ -19,7 +19,7 @@ This tutorial provides end-to-end guidance on how to migrate the Contoso Univers
 
 1. Clone this repo and change to the working directory using the following commands.
 
-    ```shell
+    ```bash
     git clone https://github.com/saltysoup/ContosoUniversity
 
     cd ContosoUniversity
@@ -27,7 +27,7 @@ This tutorial provides end-to-end guidance on how to migrate the Contoso Univers
 
 1. Provision the lab resources using [terraform](https://www.terraform.io/intro/index.html). If you don't have terraform installed locally, you can use Cloud Shell within the GCP Console. This deployment includes a GKE Windows Cluster, a dev sandbox VM w/ Visual Studio & all required binaries and a Cloud SQL instance. 
 
-    ```shell
+    ```bash
     cd terraform-sandbox-setup
     ```
     
@@ -35,13 +35,13 @@ This tutorial provides end-to-end guidance on how to migrate the Contoso Univers
 
 1. Use terraform to provision the cloud resources.
 
-    ```shell
+    ```bash
     terraform apply
     ```
 
 1. (Optional), you can also use terraform to clean up the cloud resources once you've finished the lab.
 
-    ```shell
+    ```bash
     terraform destroy
     ```
 
@@ -49,9 +49,14 @@ This tutorial provides end-to-end guidance on how to migrate the Contoso Univers
 
 ### Once the resources successfully provision through terraform, [connect to your Windows VM](https://cloud.google.com/compute/docs/instances/connecting-to-windows) for the rest of the lab.
 
+The following user account has been provisioned for you:
+```
+username: sandbox-user
+password: Password123!
+```
 <br>
 
-## Setting up Cloud SQL for SQL Server
+## **Setting up Cloud SQL for SQL Server**
 In this section, you set up the application database within Google Cloud SQL for SQL Server instance.
 
 1. Your Cloud SQL instance should already be provisioned in the [Prerequisites](#Prerequisites) section
@@ -63,11 +68,11 @@ In this section, you set up the application database within Google Cloud SQL for
 1. Verify that the IP address that you want to connect to the database from is added to your [authorized networks](https://cloud.google.com/sql/docs/sqlserver/configure-ip?hl=en_US#console). Alternatively, for the purposes of this tutorial, you can allow all public IPs (0.0.0.0/0) to connect, as shown in the following screenshot:
 ![Allow All Public IPs](_figures/allowpublicip.png)
 
-## Connect to the database
+## **Connect to the database**
 In this section, you will be seeding the database from the dev sandbox created previously.
 
 1. Within the newly created Windows sandbox VM, clone the repo again and switch to the `vm` branch.
-    ```shell
+    ```bash
     git clone https://github.com/saltysoup/ContosoUniversity
 
     git checkout vm
@@ -85,13 +90,15 @@ In this section, you will be seeding the database from the dev sandbox created p
 
 1. In Visual Studio, open the Package Manager Console from the **View** menu -> **Other Windows** -> **Package Manager Console**. Enter the following command:
 
-   ```cmd
+   ```powershell
    PM> update-database
    ```
 
 This creates the schema and seeds the database with data automatically using Entity Framework and the `DAL\SchoolInitializer.cs` class.
 
-### Test the application 
+<br>
+
+## **Test the application**
 
 Confirm the application builds and functions as desired before starting the migration.  
 1. In Visual Studio 2019, press `Ctrl+F5` to build and run the project. 
@@ -101,13 +108,15 @@ Confirm the application builds and functions as desired before starting the migr
 
 1. Verify the application can access the database by selecting one of the tabs, for example, **Departments**.
 
-## Migrate
+<br>
+
+# Migrate
 
 In this section, you use the [.NET Upgrade Assistant](https://dotnet.microsoft.com/platform/upgrade-assistant/) to automate some steps of the migration to .NET 5. This will get you about 80% of the way there for this tutorial application. This automation is also a good starting point for most .NET Framework to .NET 5 upgrades. 
 
 1. Close your Visual Studio instance
 
-1. Open a command prompt in the solution folder where you extracted the sample, for example, `c:\repos\ContosoUniversity\`
+1. Open a powershell window in the solution folder where you extracted the sample, for example, `C:\Users\sandbox-user\ContosoUniversity`
 
 1. Install the .NET Upgrade Assistant and dependents:
     ```cmd
@@ -117,13 +126,19 @@ In this section, you use the [.NET Upgrade Assistant](https://dotnet.microsoft.c
 
 1. Run the upgrade assistant:
     ```cmd
-    upgrade-assistant ContosoUniversity.sln --non-interactive --skip-backup
+    ~/.dotnet/tools/upgrade-assistant.exe upgrade .\ContosoUniversity.sln --non-interactive --skip-backup
     ```
+
+    ![Upgrade Assistant](./_figures/upgrade-assistant.png)
+
+1. This should kick off the refactor process and complete in a few minutes.
+
+    ![Upgrade Assistant 2](./_figures/upgrade-assistant2.png)
 
 The output of the Upgrade Assistant is the converted .NET 5 project.  A `log.txt` file contains a summary of the changes.  If you cloned the repository in an earlier step, you can get a more detailed comparision of the file differences after conversion with the following command:
 
 ```cmd
- git diff --stat start upgraded
+ git diff --stat vm upgraded
 
  ContosoUniversity/App_Start/BundleConfig.cs           |   4 +-
  ContosoUniversity/App_Start/FilterConfig.cs           |   4 +-
@@ -144,14 +159,13 @@ The output of the Upgrade Assistant is the converted .NET 5 project.  A `log.txt
  ContosoUniversity/packages.config                     |  20 -------
  17 files changed, 185 insertions(+), 316 deletions(-)
 (END)
-
 ```
 
-## Refactor
+# Refactor
 
-In this section, you make some manual changes to get the application to enable you to build under .NET 5.  At this point, we recommend that you switch to [Visual Studio Code](https://code.visualstudio.com/) which is much lighter weight, open source IDE for developing in .NET Core. However, you can continue to use Visual Studio if you choose.
+In this section, you need to complete the refactoring by making some manual changes to get the application to enable you to build under .NET 5.  At this point, we recommend that you switch to [Visual Studio Code](https://code.visualstudio.com/) which is much lighter weight, open source IDE for developing in .NET Core. However, you can continue to use Visual Studio if you choose.
 
-### Remove **App_Start\\\*.*** and **Global.asax**
+## Remove **App_Start\\\*.*** and **Global.asax**
 
 The downloaded source code directory structure should resemble to following tree.  The root `\` of the directory contains the `ContainerUniversity.sln` solution file and the project directory is `.\ContosoUniversity\`:
 
@@ -174,12 +188,17 @@ The downloaded source code directory structure should resemble to following tree
 
 ```
 
-To use ASP.NET Core, you must remove all the files from the `ContosoUniversity\App_Start` directory as well as `ContosoUniversity\Global.asax*` files.
+1. To use ASP.NET Core, you must remove all the files from the `ContosoUniversity\App_Start` directory as well as `ContosoUniversity\Global.asax*` files.
 
-[Bundling and minification](https://docs.microsoft.com/en-us/aspnet/core/client-side/bundling-and-minification?view=aspnetcore-5.0) changed in ASP.NET Core, so you need to remove the file `ContosoUniversity\App_Start\BundleConfig.cs`.  To replace it you use the `BuildBundlerMinifier` nuget package to bundle and minify at build time.
+    ```powershell
+    Remove-Item -Recurse ContosoUniversity\App_Start\*
+    Remove-Item -Recurse ContosoUniversity\Global.asax*
+    ```
 
-1. Add the `BuildBundlerMinifier` package:
-    ```cmd
+1. [Bundling and minification](https://docs.microsoft.com/en-us/aspnet/core/client-side/bundling-and-minification?view=aspnetcore-5.0) changed in ASP.NET Core. Verify that the file `ContosoUniversity\App_Start\BundleConfig.cs` no longer exists.
+
+1. To replace this, you use the `BuildBundlerMinifier` nuget package to bundle and minify at build time. Add the `BuildBundlerMinifier` package:
+    ```powershell
     cd ContosoUniversity\
     
     dotnet add package BuildBundlerMinifier
@@ -217,27 +236,38 @@ To use ASP.NET Core, you must remove all the files from the `ContosoUniversity\A
     ]
     ```
     
-1. Remove `@Scripts.Render` references (`-` lines below) from all `.cshtml` files and replace with the `+` lines below.  VS Code has built in support for regex in Find (`CTRL-F`) then press `ALT+R` to use regular expression mode and search for `(~/Content)|(~/bundles)`.  If you use Visual Studio it can be helpful to use `Find` dialog like this:
+1. As `@Scripts.Render` and `@Styles.Render` methods are not supported in .NET Core, we'll need to refactor our code to the new style.
+<br><br>
+Remove `@Scripts.Render` references (`-` lines below) from all `.cshtml` files and replace with the `+` lines below.  VS Code has built in support for regex in Find (`CTRL-F`) then press `ALT+R` to use regular expression mode and search for `(~/Content)|(~/bundles)`.  If you use Visual Studio it can be helpful to use `Find` dialog like this:
     ![Find with RegEx](_figures/findregex.png)
 
+    In `Course/Create.cshtml`, `Course/Edit.cshtml`, `Department/Create.cshtml`, `Department/Edit.cshtml`, `Instructor/Create.cshtml`, `Instructor/Edit.cshtml`, `Student/Create.cshtml`, `Student/Edit.cshtml`
     ```diff
     - @section Scripts {
     -    @Scripts.Render("~/bundles/jqueryval")
     - }
     + <script src="~/js/jqueryval.js"></script>
     ```
+
+    In `Shared/_Layout.cshtml`
     ```diff
     - @Styles.Render("~/Content/css")
     + <link href="~/css/styles.css" rel="stylesheet" />
     ```
+
+    In `Shared/_Layout.cshtml`
     ```diff
     - @Scripts.Render("~/bundles/modernizr")
     + <script src="~/js/modernizr.js"></script>
     ```
+
+    In `Shared/_Layout.cshtml`
     ```diff
     - @Scripts.Render("~/bundles/jquery")
     + <script src="~/js/jquery.js"></script>
     ```
+    
+    In `Shared/_Layout.cshtml`
     ```diff        
     - @Scripts.Render("~/bundles/bootstrap")
     + <script src="~/js/bs-bundle.js"></script>        
@@ -247,14 +277,14 @@ To use ASP.NET Core, you must remove all the files from the `ContosoUniversity\A
 
 Routing and middleware in ASP.NET Core is configured in the new `ContosoUniversity\Startup.cs` file that was added by the .NET Upgrade Assistant which is documented in [App startup in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/startup?view=aspnetcore-5.0).
 
-5. Delete `ContosoUniversity\App_Start\RouteConfig.cs` and `ContosoUniversity\App_Start\FilterConfig.cs`.
+1. Verify that `ContosoUniversity\App_Start\RouteConfig.cs` and `ContosoUniversity\App_Start\FilterConfig.cs` has been deleted.
 
-1. Delete `ContosoUniversity\Global.asax` and `ContosoUniversity\Global.asax.cs`.  See [this](https://docs.microsoft.com/en-us/aspnet/core/migration/proper-to-2x/?view=aspnetcore-5.0#globalasax-file-replacement) for more information.
+1. Verify that `ContosoUniversity\Global.asax` and `ContosoUniversity\Global.asax.cs` has been deleted.  See [this](https://docs.microsoft.com/en-us/aspnet/core/migration/proper-to-2x/?view=aspnetcore-5.0#globalasax-file-replacement) for more information.
     
-### Pagination
+## **Pagination**
 
 The sample application uses the `PagedList.Mvc` library which you must replace with `PagedList.Core.Mvc`.
-1. Replace the package
+1. From the `ContosoUniversity` directory, replace the package with the following:
     ```cmd
     dotnet remove package PagedList.Mvc
 
@@ -275,7 +305,7 @@ The sample application uses the `PagedList.Mvc` library which you must replace w
     + @using PagedList.Core.Mvc;
     ```
 
-1.  Replace the `PagedListPager` component:
+1.  Within the same file, replace the `PagedListPager` component:
     ```diff    
     - @Html.PagedListPager(Model, page => Url.Action("Index",
     -    new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter })) 
@@ -286,14 +316,22 @@ TODO: Need to confirm if this is being bundled/changed:
 <link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 -->
 
-### Return Results
+## **Return Results**
 
-ASP.NET MVC Core uses different return result objects for the controller's action methods. Because there are many of these objects scattered throughout the `ContosoUniversity\Controllers\` classes, to replace all malformed return results, we recommend that you look at the build errors table for your IDE. Look for errors in controllers action methods that are because of an unknown return type: 
+ASP.NET MVC Core uses different return result objects for the controller's action methods. In this application, there are many of these objects scattered throughout the `ContosoUniversity\Controllers\` classes.
+
+Refactor these instances using the `Edit->Find and Replace->Replace in Files` function to replace:
+
+* `return new StatusCodeResult(HttpStatusCode.BadRequest);` with `return new BadRequestResult();`
+
+* `return HttpNotFound();` with `return new NotFoundResult();`
 
 ```diff
 -                return new StatusCodeResult(HttpStatusCode.BadRequest);
 +                return new BadRequestResult();
 ```
+![ReturnResults](./_figures/HttpStatusCodeBadrequest.png)
+
 and: 
 
 ```diff
@@ -301,120 +339,262 @@ and:
 +                return new NotFoundResult();
 ```
 
-### **TryUpdateModel** to **TryUpdateModelAsync**
-The `TryUpdateModel` method is replaced by an `async` method in .NET 5.  To use this method, there are several changes you need to make to each of the controllers including adding a using, changing the method to return `Task<ActionResult>` and waiting for the result, for example:
+![BadResults](./_figures/HttpNotFound.png)
 
-```diff
-+using System.Threading.Tasks;
-...
--        public ActionResult EditPost(int? id)
-+        public async Task<ActionResult> EditPost(int? id)
+## **TryUpdateModel** to **TryUpdateModelAsync**
+The `TryUpdateModel` method is replaced by an `async` method in .NET 5.  To use this method, refactor the controllers:
 
--            if (TryUpdateModel(courseToUpdate, "",
--               new string[] { "Title", "Credits", "DepartmentID" }))
-+            // Note that you do not need to include the field names:
-+            if (await TryUpdateModelAsync(courseToUpdate))
-             ...
-```
+* In `Controllers\CourseController.cs`
+    ```diff
+    +        using System.Threading.Tasks;
+    ...
+    -        public ActionResult EditPost(int? id)
+    +        public async Task<ActionResult> EditPost(int? id)
+    ...
+    -            if (TryUpdateModel(courseToUpdate, "",
+    -               new string[] { "Title", "Credits", "DepartmentID" }))
+    +            if (await TryUpdateModelAsync(courseToUpdate))
+    ...
+    ```
 
-### **Bind** attribute 
-You must make minor change in the `Bind` attribute in each of the controllers to remove the `Include=` parameter from the `Bind` attribute, for example:
+* In `Controllers\DepartmentControllers.cs`
+    ```diff
+    +       using System.Threading.Tasks;
+    ...
+    -       TryUpdateModel(deletedDepartment, fieldsToBind);
+    +       await TryUpdateModelAsync(deletedDepartment);
+    ...
+    -       if (TryUpdateModel(departmentToUpdate, fieldsToBind))
+    +       if (await TryUpdateModelAsync(departmentToUpdate))
+    ...
+    ```
 
-```diff
--        public ActionResult Create([Bind(Include = "CourseID,Title,Credits,DepartmentID")]Course course)
-+        public ActionResult Create([Bind("CourseID,Title,Credits,DepartmentID")]Course course)
-```        
-Because each of these is slightly different, it's best to search in your IDE for `[Bind(Include` and manually edit each attribute.
+* In `Controllers\InstructorControllers.cs`
+    ```diff
+    +        using System.Threading.Tasks;
+    ...
+    -        public ActionResult Edit(int? id, string[] selectedCourses)
+    +        public async Task<ActionResult> Edit(int? id, string[] selectedCourses)
+    ...
+    -       if (TryUpdateModel(instructorToUpdate, "",
+    -       new string[] { "LastName", "FirstMidName", "HireDate", "OfficeAssignment" }))
+    +       if (await TryUpdateModelAsync(instructorToUpdate))
+    ...
+    ```
 
-### **SelectList**
+* In `Controllers\StudentControllers.cs`
+    ```diff
+    +        using System.Threading.Tasks;
+    ...
+    -        public ActionResult EditPost(int? id)
+    +        public async Task<ActionResult> EditPost(int? id)
+    ...
+    -            if (TryUpdateModel(studentToUpdate, "",
+    -               new string[] { "LastName", "FirstMidName", "EnrollmentDate" }))
+    +            // Note that you do not need to include the field names:
+    +            if (await TryUpdateModelAsync(studentToUpdate))
+    ...
+    ```
 
-The `SelectList` object is now part of the `Microsoft.AspNetCore.Mvc.Rendering` namespace, so you must update the `using` directive to the new namespace in every controller where `SelectList` is used, namely in the `ContosoUniversity/Controllers/CourseController.cs` and `ContosoUniversity/Controllers/DepartmentController.cs` files:
+## **Bind attribute**
+You must make minor change in the `Bind` attribute in each of the controllers to remove the `Include=` parameter from the `Bind` attribute:
 
-```diff
-+using Microsoft.AspNetCore.Mvc.Rendering;
-...
-        // GET: Department/Create
-        public ActionResult Create()
-        {
-            ViewBag.InstructorID = new SelectList(db.Instructors, "ID", "FullName");
-            return View();
-        }
-```
+* In `Controllers\CourseController.cs`
+    ```diff
+    -       public ActionResult Create([Bind(Include = "CourseID,Title,Credits,DepartmentID")]Course course)
+    +       public ActionResult Create([Bind("CourseID,Title,Credits,DepartmentID")]Course course)
+    ```
+* In `Controllers\DepartmentController.cs`
+    ```diff
+    -       public async Task<ActionResult> Create([Bind(Include = "DepartmentID,Name,Budget,StartDate,InstructorID")] Department department)
+    +       public async Task<ActionResult> Create([Bind("DepartmentID,Name,Budget,StartDate,InstructorID")] Department department)
+    ```
+* In `Controllers\InstructorController.cs`
+    ```diff
+    -       public ActionResult Create([Bind(Include = "LastName,FirstMidName,HireDate,OfficeAssignment")]Instructor instructor, string[] selectedCourses)
+    +       public ActionResult Create([Bind("LastName,FirstMidName,HireDate,OfficeAssignment")] Instructor instructor, string[] selectedCourses)
+    ```
+* In `Controllers\StudentController.cs`
+    ```diff
+    -       public ActionResult Create([Bind(Include = "LastName, FirstMidName, EnrollmentDate")]Student student)
+    +       public ActionResult Create([Bind("LastName, FirstMidName, EnrollmentDate")] Student student)
+    ```
 
-## Using .NET 5 Configuration
+## **SelectList**
+
+The `SelectList` object is now part of the `Microsoft.AspNetCore.Mvc.Rendering` namespace, so you must update the `using` directive to the new namespace in every controller where `SelectList` is used.
+
+* In `Controllers\CourseController.cs`
+    ```diff
+    +       using Microsoft.AspNetCore.Mvc.Rendering;
+    ```
+* In `Controllers\DepartmentController.cs`
+    ```diff
+    +       using Microsoft.AspNetCore.Mvc.Rendering;
+    ```
+
+## **Using .NET 5 Configuration**
 
 In .NET 5, [configuration in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0) isn't read from the `Web.config` configuration file, so you must move your connection string over to use one of the pluggable configuration providers which gives you more flexibility. However, the amount of flexibility will vary depending on the environment that you deploy the application to.
 
-### Add a connection string to **appsettings**
+### **Add a connection string to appsettings**
 
-1. Open the `appsettings.Development.json` file and copy your connection string from `Web.config` as follows:
+1. Open the `ContosoUniversity\appsettings.json\appsettings.Development.json` file and copy your connection string from `Web.config`. 
 
-    ```diff
+    ![appsettingsdevjson](./_figures/appsettingsdevelopmentjson.png)
+
+    Your ConnectionStrings values should have been set previously in [Connect to the Database](#connect-to-the-database) section.
+
+    ```shell
     {
-    "Logging": {
-        "LogLevel": {
-        "Default": "Information",
-        "Microsoft": "Warning",
-        "Microsoft.Hosting.Lifetime": "Information"
+        "Logging": {
+            "LogLevel": {
+                "Default": "Information",
+                "Microsoft": "Warning",
+                "Microsoft.Hosting.Lifetime": "Information"
+            }
+        },
+        "ConnectionStrings": {
+            "SchoolContext": "Data Source=<DBPUBLICIP>;Initial Catalog=ContosoUniversity;User ID=<DBUSER>;Password=<DBPWD>;"
         }
-    -  }
-    +  },
-    +  "ConnectionStrings": {
-    +    "SchoolContext": "Data Source=1.1.1.1;Initial Catalog=ContosoUniversity;User ID=sqlserver;Password=XXXXX;"
-    +  }
-    +}
+    }
     ```
-1. ASP.NET Core [configures app behavior](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-5.0) based on the runtime environment using an environment variable.  Set `ASPNETCORE_ENVIRONMENT` to `Development` so that it will load the `appsettings.`**Development**`.json` file:
+
+1. ASP.NET Core [configures app behavior](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-5.0) based on the runtime environment using an environment variable. Set `ASPNETCORE_ENVIRONMENT` to `Development` so that it will load the `appsettings.`**Development**`.json` file:
+    
+    Open a new shell, `View->Terminal` and run the following command
     ```cmd
     set ASPNETCORE_ENVIRONMENT=Development
     ```
+
 1. Delete the `Web.config` file.
 
-### Use ASP.NET MVC Core Dependency Injection for configuration
+## **Use ASP.NET MVC Core Dependency Injection for configuration**
 
 The best pattern to use a common service like the database context in ASP.NET Core is to use [Dependency Injection](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-5.0). 
 
-1. Add a constructor to the `SchoolContext` class in the `ContosoUniversity\DAL\SchoolContext.cs` file, with the connection string as a parameter.
+1. In `ContosoUniversity\DAL\SchoolContext.cs`, add a constructor to the `SchoolContext` class with the connection string as a parameter.
+
    ```diff
+   ...
+            public DbSet<Person> People { get; set; }
    +        public SchoolContext(string connectString) : base(connectString) {}
+            protected override void OnModelCreating(DbModelBuilder modelBuilder)
+   ...
    ```
 
-1. Configure the service container in `ContosoUniversity\Startup.cs` to add the database context:
+1. In `ContosoUniversity\Startup.cs`, configure the service container to add the database context:
    ```diff
-   + using ContosoUniversity.DAL;
-     ...
-        {
-          options.UseMemberCasing();
-        });
-
-   +    services.AddScoped<SchoolContext>(_ => 
-   +      new SchoolContext(Configuration.GetConnectionString("SchoolContext"))
-   +      );
-        }
+   +        using ContosoUniversity.DAL;
+   ...
+            {
+            options.UseMemberCasing();
+            });
+   +        services.AddScoped<SchoolContext>(_ => 
+   +        new SchoolContext(Configuration.GetConnectionString("SchoolContext"))
+   +        );
+            }
+   ...
    ```
 
-1. Change each of the `ContosoUniversity\controllers` to consume this injected service.  Repeat this pattern for each controller as demonstrated with `StudentController`:
-   ```diff
-    public class StudentController : Controller
-    {
-   -    private SchoolContext db = new SchoolContext();
-   +    private SchoolContext db = null;
-   +
-   +    public StudentController(SchoolContext db)
-   +    {
-   +        this.db = db;
-   +    }
-   ```
+1. Finally, we need to change our controllers to consume this injected service. Make the following changes:
 
-1. You now test the application again. Run `dotnet run` to ensure that the application still connects to the database.
+* In `Controllers\CourseController.cs`
+    ```diff
+    ...
+            public class CourseController : Controller
+            {
+    -           private SchoolContext db = new SchoolContext();
+    +           private SchoolContext db = null;
+    +           public CourseController(SchoolContext db)
+    +           {
+    +               this.db = db;
+    +           }
+    ...
+    ```
 
-### Test the .NET 5 version
+* In `Controllers\DepartmentController.cs`
+    ```diff
+    ...
+            public class DepartmentController : Controller
+            {
+    -           private SchoolContext db = new SchoolContext();
+    +           private SchoolContext db = null;
+    +           public DepartmentController(SchoolContext db)
+    +           {
+    +               this.db = db;
+    +           }
+    ...
+    ```
 
-The application should now compile and run successfully as a .NET 5 application. To build and launch the migrated .NET 5 application, run the following command from the `ContosoUniversity\` directory:
-```cmd
-dotnet run
+* In `Controllers\HomeController.cs`
+    ```diff
+    ...
+            public class HomeController : Controller
+            {
+    -           private SchoolContext db = new SchoolContext();
+    +           private SchoolContext db = null;
+    +           public HomeController(SchoolContext db)
+    +           {
+    +               this.db = db;
+    +           }
+    ...
+    ```
+* In `Controllers\InstructorController.cs`
+    ```diff
+    ...
+            public class InstructorController : Controller
+            {
+    -           private SchoolContext db = new SchoolContext();
+    +           private SchoolContext db = null;
+    +           public InstructorController(SchoolContext db)
+    +           {
+    +               this.db = db;
+    +           }
+    ...
+    ```
+
+* In `Controllers\StudentController.cs`
+    ```diff
+    ...
+            public class StudentController : Controller
+            {
+    -           private SchoolContext db = new SchoolContext();
+    +           private SchoolContext db = null;
+    +           public StudentController(SchoolContext db)
+    +           {
+    +               this.db = db;
+    +           }
+    ...
+    ```
+
+## **Update Newtonsoft.Json version in project file** 
+To use the `Microsoft.AspNetCore.Mvc.NewtonsoftJson` package, update the **Newtonsoft.Json** version from `9.0.1` to `12.0.2` in the project file.
+
+```diff
+-       <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
++       <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
 ```
-You see the following output, which shows the application listening on ports 5000 & 5001.  If for some reason you can't use one of these ports, an easy alternative is to run `dotnet run -- --urls=http://localhost:3333` to run on port 3333 instead:
+
+![editcsproj](./_figures/editcsproj.png)
+
+
+## **Code Cleanup** 
+As the final step and good practice, use the built-in Code Cleanup feature for consistent formatting and removing unnecessary `using` directives.
+
+Navigate to the feature within Solution Explorer pane in Visual Studio, `Right Click->ContosoUniversity project->Analyze and Code Cleanup->Run Code Cleanup`
+
+## **Congratulations!!**
+You've now refactored the application to .NET 5.
+
+## **Test the .NET 5 version**
+Test the application by using the following command in a terminal from the `ContosoUniversity\` directory:
+
+```cmd
+dot net run
+```
+
+You should see the following output, which shows the application listening on ports 5000 & 5001.  If for some reason you can't use one of these ports, an easy alternative is to run `dotnet run -- --urls=http://localhost:3333` to run on port 3333 instead:
 ```cmd
 info: Microsoft.Hosting.Lifetime[0]
       Now listening on: http://localhost:5000
@@ -428,13 +608,13 @@ info: Microsoft.Hosting.Lifetime[0]
       Content root path: C:\repos\ContosoUniversity\ContosoUniversity
 ```
 
-You should now have your fully migrated .NET 5 application up and running again. The application should be connected to Google Cloud SQL for SQL Server just as the .NET Framework version was. Go ahead and poke around in the application to test the functionality more thoroughly.
+Open `http://localhost:5000` on a browser and the refactored application will connect to the Google Cloud SQL for SQL Server just as the .NET Framework version was. Go ahead and poke around in the application to test the functionality more thoroughly.
 
-## Deploying to Google Cloud
+## **Deploying to Google Cloud**
 
 Another benefit of moving to .NET 5 is that you can now run the application in a lightweight Linux container.  With Linux containers you can avoid the `it works on my machine` paradigm by encapsulating all of your dependencies in a small, portable format that can be run anywhere that can host a Docker container, including Kubernetes or fully serverless platforms like [Cloud Run](https://cloud.google.com/run).
 
-### Create the Dockerfile
+## **Create the Dockerfile**
 
 The next step is to create a Dockerfile which runs in a [.NET Docker container](https://docs.microsoft.com/en-us/dotnet/architecture/microservices/net-core-net-framework-containers/official-net-docker-images) created by Microsoft.
 
@@ -459,7 +639,7 @@ ENTRYPOINT ["/app/ContosoUniversity"]
 
 In this step you use a Docker [multi-stage build](https://docs.docker.com/develop/develop-images/multistage-build/).  This guarantees that the build environment is always the same.  The output of the `build` stage is a [self-contained](https://docs.microsoft.com/en-us/dotnet/core/deploying/#publish-self-contained) executable that does not require .NET 5 to be installed, further reducing the image size and startup time.  The `runtime` stage copies only the runtime components necessary and sets a default URL to listen on as an environment variable.  The `ENTRYPOINT` is the name of the self-contained executable that was generated in the `build` stage.  
 
-### Build and run the container
+## **Build and run the container**
 If you have Docker [installed](https://docs.docker.com/docker-for-windows/install/) on your local machine you can build and start the container with the following commands from the solution directory where you created the `Dockerfile`:
 
 ```cmd
@@ -470,7 +650,7 @@ docker run -it contosouniversity:v1 -p 8080:8080
 
 This command will run the application and expose port 8080 to the `localhost`, so that you can launch a browser at `http://localhost:8080` on your local machine to test.  
 
-### Using Cloud Build
+## **Using Cloud Build**
 
 Rather than running Docker locally, you can use the managed [Cloud Build](https://cloud.google.com/build) service to build the container and automatically push it to your Google Container Registry.
 
@@ -492,7 +672,7 @@ Rather than running Docker locally, you can use the managed [Cloud Build](https:
     ```
     Your complete Docker build now runs in the cloud and you should see the output of the build printed to your console while it runs.
 
-### Deploying to Cloud Run
+## **Deploying to Cloud Run**
 
 Now that you've built your container and published it to Google Container Registry, you can easily deploy the application to Cloud Run:
 
@@ -502,7 +682,7 @@ gcloud run deploy --image gcr.io/_my-sample-project_/contosouniversity:v1 --plat
 
 For a complete tutorial on Cloud Run with C#, see [Build and deploy a C# .Net Core service](https://cloud.google.com/run/docs/quickstarts/build-and-deploy/c-sharp).
 
-## Using Google Secret Manager
+## **Using Google Secret Manager**
 
 While your application is now deployed and running, one issue is that your database connection string in `appsettings.json` are stored in plain text being shipped around with your source code.  To fix this in this section, you use [Secret Manager](https://cloud.google.com/secret-manager) to securely store the connection string.  If you are using Visual Studio Code at this point, you can use the [Cloud Code extension](https://cloud.google.com/code/docs/vscode/install) to easily create and manage secrets.
 
@@ -554,7 +734,7 @@ While your application is now deployed and running, one issue is that your datab
 
 1. Give the `Secret Manager Secret Accessor` role to the Cloud Run service account. For instructions, see [the Cloud run documentation](https://cloud.google.com/run/docs/configuring/secrets#access-secret).
 
-## Adding Cloud Logging and Cloud Monitoring
+## **Adding Cloud Logging and Cloud Monitoring**
 In this section, you centralize logging and monitoring.  It's common for Cloud Native applications to adopt the [Twelve-Factor App](https://12factor.net/logs) pattern and treat logs as streams.  ASP.NET Core by default [writes logs](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/?view=aspnetcore-5.0) to `stdout` as desired.  By default, all Cloud Run logs written to `stdout` by the container will be available in [Cloud Logging](https://cloud.google.com/logging).  However, [structured logging](https://cloud.google.com/logging/docs/structured-logging) allows you to make more sense of the logs, and  enabled easier querying, with machine and human readability.
 
 There are several ways to get ASP.NET to automatically structure the logs without changing your logging code.  The easiest method is to configure the `Google.Cloud.Diagnostics.AspNetCore` package.
@@ -581,7 +761,7 @@ There are several ways to get ASP.NET to automatically structure the logs withou
 
    The application uses Cloud Logging only for production environments, such as when the application is deployed to Cloud Run. The `ENVIRONMENT` setting is controlled by the `ASPNETCORE_ENVIRONMENT` environment variable that you set earlier. If you don't set this variable, ASP.NET Core uses the value `Production` [By default](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-5.0#environments).
 
-## Putting it all together
+## **Putting it all together**
 
 At this stage, you're now using Cloud Build to build and publish rour container to Container Registry, Secret Manager to store the connection string, and Cloud Run to run your application.  To pull all of these actions together, in this section you  create the `cloudbuild.yaml` file to automate your build and deployment. Cloud Build can even be configured to run when you push to your git repository, for example to enable continuous integration and continuous deployment (CI/CD).  
 
@@ -688,6 +868,6 @@ At this stage, you're now using Cloud Build to build and publish rour container 
     ```cmd
     gcloud run services describe contosouniversity
     ```
-## What's Next?
+## **What's Next?**
 
 - Converting to .NET Core too much work for your workload? Check out building a [Windows Container and deploying to GKE](GKE.md) with no code changes.

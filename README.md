@@ -330,7 +330,7 @@ Refactor these instances using the `Edit->Find and Replace->Replace in Files` fu
 -                return new StatusCodeResult(HttpStatusCode.BadRequest);
 +                return new BadRequestResult();
 ```
-![ReturnResults](./_figures/HttpStatusCodeBadrequest.png)
+![ReturnResults](./_figures/HttpStatusCodeBadrequest.PNG)
 
 and: 
 
@@ -339,7 +339,7 @@ and:
 +                return new NotFoundResult();
 ```
 
-![BadResults](./_figures/HttpNotFound.png)
+![BadResults](./_figures/HttpNotFound.PNG)
 
 ## **TryUpdateModel** to **TryUpdateModelAsync**
 The `TryUpdateModel` method is replaced by an `async` method in .NET 5.  To use this method, refactor the controllers:
@@ -441,7 +441,7 @@ In .NET 5, [configuration in ASP.NET Core](https://docs.microsoft.com/en-us/aspn
 
 1. Open the `ContosoUniversity\appsettings.json\appsettings.Development.json` file and copy your connection string from `Web.config`. 
 
-    ![appsettingsdevjson](./_figures/appsettingsdevelopmentjson.png)
+    ![appsettingsdevjson](./_figures/appsettingsdevelopmentjson.PNG)
 
     Your ConnectionStrings values should have been set previously in [Connect to the Database](#connect-to-the-database) section.
 
@@ -576,7 +576,7 @@ To use the `Microsoft.AspNetCore.Mvc.NewtonsoftJson` package, update the **Newto
 +       <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
 ```
 
-![editcsproj](./_figures/editcsproj.png)
+![editcsproj](./_figures/editcsproj.PNG)
 
 
 ## **Code Cleanup** 

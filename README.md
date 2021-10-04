@@ -49,8 +49,6 @@ In this section, you set up the Google Cloud SQL for SQL Server instance.
 
 1. [Create an instance](https://cloud.google.com/sql/docs/sqlserver/create-instance).  For the purposes of this tutorial you can use the SQL Server 2017 Express Edition which is free to license.  For this tutorial, you put all resources in the `us-central1` region.  If you prefer to use a different region, make sure to change that in all region in this tutorial.
 
-1. [Create a database](https://cloud.google.com/sql/docs/sqlserver/create-manage-databases) and name it as follows: `ContosoUniversity` 
-
 1. [Add a user](https://cloud.google.com/sql/docs/sqlserver/create-manage-users) to connect to the database.    
 
 1. Make sure that the IP address that you want to connect to the database from is added to your [authorized networks](https://cloud.google.com/sql/docs/sqlserver/configure-ip#console). Alternatively, for the purposes of this tutorial, you can allow all public IPs (0.0.0.0/0) to connect, as shown in the following screenshot:
@@ -60,11 +58,11 @@ In this section, you set up the Google Cloud SQL for SQL Server instance.
 
 1. Open the `ContosoUniversity.sln` solution file with Visual Studio 2019.
 
-1. Using the Cloud SQL Server IP address, database name, user and password you created preceding, modify your connection string in the `Web.config` file:
+1. Using the Cloud SQL Server IP address, user and password you created preceding, modify your connection string in the `Web.config` file:
 
    ```XML
    <connectionStrings>
-     <add name="SchoolContext" connectionString="Data Source=1.1.1.1;Initial Catalog=ContosoUniversity;User ID=sqlserver;Password=XXXXX;" providerName="System.Data.SqlClient" />
+     <add name="SchoolContext" connectionString="Data Source=[INSTANCE_IP];Initial Catalog=ContosoUniversity;User ID=[USER];Password=[PASSWORD];" providerName="System.Data.SqlClient" />
    </connectionStrings>
    ```
 

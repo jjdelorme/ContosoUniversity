@@ -40,11 +40,7 @@ git checkout start
 If you've not already done so, make sure to enable the following APIs in your project. In Cloud Shell, use the following command:
 
 ```bash
-gcloud services enable \
-    containerregistry.googleapis.com \
-    run.googleapis.com \
-    compute.googleapis.com \
-    cloudbuild.googleapis.com
+gcloud services enable containerregistry.googleapis.com run.googleapis.com compute.googleapis.com cloudbuild.googleapis.com
 ```
 
 ### Setup Cloud SQL for SQL Server

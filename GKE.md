@@ -5,7 +5,7 @@
 Create a GKE cluster with a Windows Server node pool.
 
 ```cmd
-export CLUSTER_NAME=your_cluster_name_here
+export CLUSTER_NAME=cluster1
 
 gcloud container clusters create $CLUSTER_NAME \
     --enable-ip-alias \
@@ -59,7 +59,7 @@ The secret is created as such from a file that contains just the connectionStrin
 ```xml
 <connectionStrings>
     <add name="SchoolContext"
-         connectionString="Data Source=SERVER-NAME;User=MYUSER;Password=MYPASSWORD;Initial Catalog=ContosoUniversity;"
+         connectionString="Data Source=[INSTANCE_IP];Initial Catalog=ContosoUniversity;User ID=[USER];Password=[PASSWORD];"
         providerName="System.Data.SqlClient" />
 </connectionStrings>
 ```

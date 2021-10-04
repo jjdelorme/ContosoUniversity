@@ -2,7 +2,7 @@
 
 ## Create the GKE cluster
 
-Following these [instructions](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-cluster-windows), note that you must create the cluster from gcloud rather than the console UI because the `--enable-ip-alias` is not available there.
+Create a GKE cluster with a Windows Server node pool.
 
 ```cmd
 export CLUSTER_NAME=your_cluster_name_here
@@ -20,6 +20,8 @@ gcloud container node-pools create windows-ltsc-pool \
 
 gcloud container clusters get-credentials $CLUSTER_NAME
 ```
+
+Refer to [creating a cluster using Windows Server node pools](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-cluster-windows) for more information about Windows Server node pools in GKE.
 
 ### Enabling Google APIs
 

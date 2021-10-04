@@ -28,11 +28,7 @@ Refer to [creating a cluster using Windows Server node pools](https://cloud.goog
 If you have not already done so, make sure to enable the following APIs in your project.  You can do this with the following command, easiest if done in the Google Cloud shell:
 
 ```bash
-gcloud services enable \
-    containerregistry.googleapis.com \
-    run.googleapis.com \
-    compute.googleapis.com \
-    cloudbuild.googleapis.com
+gcloud services enable containerregistry.googleapis.com run.googleapis.com compute.googleapis.com cloudbuild.googleapis.com
 ```
 
 ## Get the code

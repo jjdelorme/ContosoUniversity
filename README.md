@@ -1,8 +1,8 @@
 # Migrating ASP.NET MVC to ASP.NET Core MVC on Google Cloud
 
-This tutorial shows you how to migrate [Contoso University](https://docs.microsoft.com/en-us/aspnet/mvc/overview/getting-started/getting-started-with-ef-using-mvc/creating-an-entity-framework-data-model-for-an-asp-net-mvc-application), a traditional Microsoft ASP.NET Framework MVC + Entity Framework sample that was built with .NET Framework 4.5 and EntityFramework 6.  In this tutorial, you migrate the Contoso University application to .NET 5 and run it in a Linux container on [Google Cloud Run](https://cloud.google.com/run), a fully serverless environment. You also use [Cloud SQL for SQL Server](https://cloud.google.com/sql-server), a managed Microsoft SQL Server 2017 database in Google Cloud. The migrated Contoso University application uses Google Diagnostics and Cloud Logging for ASP.NET Core as well as Google Secret Manager. This tutorial also and demonstrates how you can use Cloud Build to build the container and automatically deploy it to Cloud Run.
+This tutorial shows you how to migrate [Contoso University](https://docs.microsoft.com/aspnet/mvc/overview/getting-started/getting-started-with-ef-using-mvc/creating-an-entity-framework-data-model-for-an-asp-net-mvc-application), a traditional Microsoft ASP.NET Framework MVC + Entity Framework sample that was built with .NET Framework 4.5 and EntityFramework 6.  In this tutorial, you migrate the Contoso University application to .NET 5 and run it in a Linux container on [Google Cloud Run](https://cloud.google.com/run), a fully serverless environment. You also use [Cloud SQL for SQL Server](https://cloud.google.com/sql-server), a managed Microsoft SQL Server 2017 database in Google Cloud. The migrated Contoso University application uses Google Diagnostics and Cloud Logging for ASP.NET Core as well as Google Secret Manager. This tutorial also and demonstrates how you can use Cloud Build to build the container and automatically deploy it to Cloud Run.
 
-This tutorial provides end-to-end guidance on how to migrate the Contoso University application to .NET 5, including the specific changes that need to be applied to the application's original ASP.NET MVC code. For more detailed guidance about migrating from ASP.NET to ASP.NET Core, see the [Microsoft documentation](https://docs.microsoft.com/en-us/aspnet/core/migration/proper-to-2x/?view=aspnetcore-5.0).
+This tutorial provides end-to-end guidance on how to migrate the Contoso University application to .NET 5, including the specific changes that need to be applied to the application's original ASP.NET MVC code. For more detailed guidance about migrating from ASP.NET to ASP.NET Core, see the [Microsoft documentation](https://docs.microsoft.com/aspnet/core/migration/proper-to-2x/?view=aspnetcore-5.0).
 
 ### Table of Contents
 * [Prerequisites](#Prerequisites)
@@ -17,9 +17,9 @@ This tutorial provides end-to-end guidance on how to migrate the Contoso Univers
 
 ## Prerequisites
 
-1. You must have access to [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) – either download and install the free Community edition, or if you have a licesnse for Visual Studio, then any of the licensed editions.
+1. You must have access to [Visual Studio 2019](https://visualstudio.microsoft.com/vs) – either download and install the free Community edition, or if you have a licesnse for Visual Studio, then any of the licensed editions.
 
-1. (Optional) [Install Docker](https://docs.docker.com/docker-for-windows/install/) on your local machine. If you can't install Docker in your environment, there is a workaround later in this tutorial.
+1. (Optional) [Install Docker](https://docs.docker.com/docker-for-windows/install) on your local machine. If you can't install Docker in your environment, there is a workaround later in this tutorial.
 
 1. Install [.NET 5 SDK](https://dotnet.microsoft.com/download/dotnet/5.0)
 
@@ -47,13 +47,13 @@ gcloud services enable containerregistry.googleapis.com run.googleapis.com compu
 
 In this section, you set up the Google Cloud SQL for SQL Server instance.
 
-1. [Create an instance](https://cloud.google.com/sql/docs/sqlserver/create-instance?hl=en_US>).  For the purposes of this tutorial you can use the SQL Server 2017 Express Edition which is free to license.  For this tutorial, you put all resources in the `us-central1` region.  If you prefer to use a different region, make sure to change that in all region in this tutorial.
+1. [Create an instance](https://cloud.google.com/sql/docs/sqlserver/create-instance).  For the purposes of this tutorial you can use the SQL Server 2017 Express Edition which is free to license.  For this tutorial, you put all resources in the `us-central1` region.  If you prefer to use a different region, make sure to change that in all region in this tutorial.
 
-1. [Create a database](https://cloud.google.com/sql/docs/sqlserver/create-manage-databases?hl=en_US>) and name it as follows: `ContosoUniversity` 
+1. [Create a database](https://cloud.google.com/sql/docs/sqlserver/create-manage-databases) and name it as follows: `ContosoUniversity` 
 
-1. [Add a user](https://cloud.google.com/sql/docs/sqlserver/create-manage-users?hl=en_US) to connect to the database.    
+1. [Add a user](https://cloud.google.com/sql/docs/sqlserver/create-manage-users) to connect to the database.    
 
-1. Make sure that the IP address that you want to connect to the database from is added to your [authorized networks](https://cloud.google.com/sql/docs/sqlserver/configure-ip?hl=en_US#console). Alternatively, for the purposes of this tutorial, you can allow all public IPs (0.0.0.0/0) to connect, as shown in the following screenshot:
+1. Make sure that the IP address that you want to connect to the database from is added to your [authorized networks](https://cloud.google.com/sql/docs/sqlserver/configure-ip#console). Alternatively, for the purposes of this tutorial, you can allow all public IPs (0.0.0.0/0) to connect, as shown in the following screenshot:
 ![Allow All Public IPs](_figures/allowpublicip.png)
 
 ### Connect to the database
@@ -234,7 +234,7 @@ Routing and middleware in ASP.NET Core is configured in the new `ContosoUniversi
 
 5. Delete `ContosoUniversity\App_Start\RouteConfig.cs` and `ContosoUniversity\App_Start\FilterConfig.cs`.
 
-1. Delete `ContosoUniversity\Global.asax` and `ContosoUniversity\Global.asax.cs`.  See [this](https://docs.microsoft.com/en-us/aspnet/core/migration/proper-to-2x/?view=aspnetcore-5.0#globalasax-file-replacement) for more information.
+1. Delete `ContosoUniversity\Global.asax` and `ContosoUniversity\Global.asax.cs`.  See [this](https://docs.microsoft.com/aspnet/core/migration/proper-to-2x/?view=aspnetcore-5.0#globalasax-file-replacement) for more information.
     
 ### Pagination
 
@@ -328,7 +328,7 @@ The `SelectList` object is now part of the `Microsoft.AspNetCore.Mvc.Rendering` 
 
 ## Using .NET 5 Configuration
 
-In .NET 5, [configuration in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0) isn't read from the `Web.config` configuration file, so you must move your connection string over to use one of the pluggable configuration providers which gives you more flexibility. However, the amount of flexibility will vary depending on the environment that you deploy the application to.
+In .NET 5, [configuration in ASP.NET Core](https://docs.microsoft.com/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0) isn't read from the `Web.config` configuration file, so you must move your connection string over to use one of the pluggable configuration providers which gives you more flexibility. However, the amount of flexibility will vary depending on the environment that you deploy the application to.
 
 ### Add a connection string to **appsettings**
 
@@ -349,7 +349,7 @@ In .NET 5, [configuration in ASP.NET Core](https://docs.microsoft.com/en-us/aspn
     +  }
     +}
     ```
-1. ASP.NET Core [configures app behavior](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-5.0) based on the runtime environment using an environment variable.  Set `ASPNETCORE_ENVIRONMENT` to `Development` so that it will load the `appsettings.`**Development**`.json` file:
+1. ASP.NET Core [configures app behavior](https://docs.microsoft.com/aspnet/core/fundamentals/environments?view=aspnetcore-5.0) based on the runtime environment using an environment variable.  Set `ASPNETCORE_ENVIRONMENT` to `Development` so that it will load the `appsettings.`**Development**`.json` file:
     ```cmd
     set ASPNETCORE_ENVIRONMENT=Development
     ```
@@ -357,7 +357,7 @@ In .NET 5, [configuration in ASP.NET Core](https://docs.microsoft.com/en-us/aspn
 
 ### Use ASP.NET MVC Core Dependency Injection for configuration
 
-The best pattern to use a common service like the database context in ASP.NET Core is to use [Dependency Injection](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-5.0). 
+The best pattern to use a common service like the database context in ASP.NET Core is to use [Dependency Injection](https://docs.microsoft.com/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-5.0). 
 
 1. Add a constructor to the `SchoolContext` class in the `ContosoUniversity\DAL\SchoolContext.cs` file, with the connection string as a parameter.
    ```diff
@@ -421,7 +421,7 @@ Another benefit of moving to .NET 5 is that you can now run the application in a
 
 ### Create the Dockerfile
 
-The next step is to create a Dockerfile which runs in a [.NET Docker container](https://docs.microsoft.com/en-us/dotnet/architecture/microservices/net-core-net-framework-containers/official-net-docker-images) created by Microsoft.
+The next step is to create a Dockerfile which runs in a [.NET Docker container](https://docs.microsoft.com/dotnet/architecture/microservices/net-core-net-framework-containers/official-net-docker-images) created by Microsoft.
 
 Create the `Dockerfile` file in the root solution directory. This directory is also where the `ContosoUniversity.sln` file resides:
 
@@ -442,7 +442,7 @@ ENV ASPNETCORE_URLS="http://0.0.0.0:8080"
 ENTRYPOINT ["/app/ContosoUniversity"]
 ```
 
-In this step you use a Docker [multi-stage build](https://docs.docker.com/develop/develop-images/multistage-build/).  This guarantees that the build environment is always the same.  The output of the `build` stage is a [self-contained](https://docs.microsoft.com/en-us/dotnet/core/deploying/#publish-self-contained) executable that does not require .NET 5 to be installed, further reducing the image size and startup time.  The `runtime` stage copies only the runtime components necessary and sets a default URL to listen on as an environment variable.  The `ENTRYPOINT` is the name of the self-contained executable that was generated in the `build` stage.  
+In this step you use a Docker [multi-stage build](https://docs.docker.com/develop/develop-images/multistage-build/).  This guarantees that the build environment is always the same.  The output of the `build` stage is a [self-contained](https://docs.microsoft.com/dotnet/core/deploying/#publish-self-contained) executable that does not require .NET 5 to be installed, further reducing the image size and startup time.  The `runtime` stage copies only the runtime components necessary and sets a default URL to listen on as an environment variable.  The `ENTRYPOINT` is the name of the self-contained executable that was generated in the `build` stage.  
 
 ### Build and run the container
 If you have Docker [installed](https://docs.docker.com/docker-for-windows/install/) on your local machine you can build and start the container with the following commands from the solution directory where you created the `Dockerfile`:
@@ -540,7 +540,7 @@ While your application is now deployed and running, one issue is that your datab
 1. Give the `Secret Manager Secret Accessor` role to the Cloud Run service account. For instructions, see [the Cloud run documentation](https://cloud.google.com/run/docs/configuring/secrets#access-secret).
 
 ## Adding Cloud Logging and Cloud Monitoring
-In this section, you centralize logging and monitoring.  It's common for Cloud Native applications to adopt the [Twelve-Factor App](https://12factor.net/logs) pattern and treat logs as streams.  ASP.NET Core by default [writes logs](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/?view=aspnetcore-5.0) to `stdout` as desired.  By default, all Cloud Run logs written to `stdout` by the container will be available in [Cloud Logging](https://cloud.google.com/logging).  However, [structured logging](https://cloud.google.com/logging/docs/structured-logging) allows you to make more sense of the logs, and  enabled easier querying, with machine and human readability.
+In this section, you centralize logging and monitoring.  It's common for Cloud Native applications to adopt the [Twelve-Factor App](https://12factor.net/logs) pattern and treat logs as streams.  ASP.NET Core by default [writes logs](https://docs.microsoft.com/aspnet/core/fundamentals/logging/?view=aspnetcore-5.0) to `stdout` as desired.  By default, all Cloud Run logs written to `stdout` by the container will be available in [Cloud Logging](https://cloud.google.com/logging).  However, [structured logging](https://cloud.google.com/logging/docs/structured-logging) allows you to make more sense of the logs, and  enabled easier querying, with machine and human readability.
 
 There are several ways to get ASP.NET to automatically structure the logs without changing your logging code.  The easiest method is to configure the `Google.Cloud.Diagnostics.AspNetCore` package.
 

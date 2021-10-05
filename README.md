@@ -46,8 +46,6 @@ This tutorial provides end-to-end guidance on how to migrate the Contoso Univers
 
 1. (Optional) Examine the `terraform.tfvars` file and update the values as desired.
 
-1. 
-
 1. Use terraform to provision the cloud resources.
 
     ```bash

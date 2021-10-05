@@ -23,6 +23,9 @@
 # Directories
 .terraform/
 
+# Terraform 
+.terraform.lock.hcl
+
 # SSH Keys
 *.pem
 

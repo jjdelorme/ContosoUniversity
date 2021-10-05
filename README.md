@@ -30,8 +30,23 @@ This tutorial provides end-to-end guidance on how to migrate the Contoso Univers
     ```bash
     cd terraform-sandbox-setup
     ```
-    
+
+1. Edit `versions.tf` to configure your GCS bucket to store terraform state by changing the value for `bucket`.
+
+    ```bash
+    terraform {
+        ..
+        backend "gcs" {
+            bucket = "contosouniversity-tf"
+            prefix = "terraform/state"
+        }
+        ..
+    }
+    ```
+
 1. (Optional) Examine the `terraform.tfvars` file and update the values as desired.
+
+1. 
 
 1. Use terraform to provision the cloud resources.
 

@@ -8,7 +8,11 @@ In [Cloud Shell](https://shell.cloud.google.com), run the following command to e
 gcloud services enable container.googleapis.com containerregistry.googleapis.com run.googleapis.com compute.googleapis.com cloudbuild.googleapis.com
 ```
 
-## Configuring private IP for Cloud SQL for SQL Server
+## Setup Cloud SQL for SQL Server
+
+If you haven't done so already, [create](./README.md#Setup-Cloud-SQL-for-SQL-Server) a Cloud SQL for SQL Server instance to host the Contoso University database.
+
+### Configuring private IP for Cloud SQL for SQL Server
 
 GKE uses cluster auto-scaling, meaning that under load your cluster may add new nodes to the cluster. New nodes are added with new external IPs, which makes it hard to keep your authorized networks in Cloud SQL up-to-date. To  allow traffic from GKE nodes to your Cloud SQL instance, we recommended that you enable private IP for your Cloud SQL instance.
 
@@ -40,7 +44,7 @@ Refer to [creating a cluster using Windows Server node pools](https://cloud.goog
 
 ## Getting the code
 
-If you plan on building and running the container locally, execute the following commands in a Windows Server 2019 machine that has [Docker](https://docs.docker.com/desktop/windows/install/) and [git](https://git-scm.com/download/win) installed. Alternatively, if you wish to build the container image with Cloud Build, remain in Cloud shell.
+If you plan on building and running the container locally, execute the following commands in a Windows Server 2019 machine that has [Docker](https://cloud.google.com/compute/docs/containers#install_docker) and [git](https://git-scm.com/download/win) installed. Alternatively, if you wish to build the container image with Cloud Build, remain in Cloud shell.
 
 Run the following command to download the code you use in this tutorial:
 

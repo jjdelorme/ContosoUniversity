@@ -14,7 +14,7 @@ steps:
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: gcloud
   args: 
-  - 'beta'  
+  - 'beta'
   - 'run'
   - 'deploy'
   - 'contosouniversity'
@@ -26,6 +26,7 @@ steps:
   - 'managed'
   - '--allow-unauthenticated'
   - '--update-secrets=/app/secrets/appsettings.json=connectionstrings:latest'
-
+  - '--vpc-connector'
+  - 'contoso-university'
 images:
 - gcr.io/$PROJECT_ID/contosouniversity:$BUILD_ID

@@ -16,8 +16,9 @@ This tutorial provides end-to-end guidance on how to migrate the Contoso Univers
 * [Putting it all together](#Putting-it-all-together)
 
 # Prerequisites
+In this step, we will be provisioning the cloud resources required for the lab.
 
-1. Clone this repo and change to the working directory using the following commands.
+1. [Open a new Cloud Shell](https://console.cloud.google.com/home/dashboard?cloudshell=true) from the GCP Console and clone this repo and change to the working directory using the following commands.
 
     ```bash
     git clone https://github.com/saltysoup/ContosoUniversity
@@ -25,32 +26,27 @@ This tutorial provides end-to-end guidance on how to migrate the Contoso Univers
     cd ContosoUniversity
     ```
 
-1. Provision the lab resources using [terraform](https://www.terraform.io/intro/index.html). If you don't have terraform installed locally, you can use Cloud Shell within the GCP Console. This deployment includes a GKE Windows Cluster, a dev sandbox VM w/ Visual Studio & all required binaries and a Cloud SQL instance. 
+1. Provision the lab resources using [terraform](https://www.terraform.io/intro/index.html). This deployment includes a GKE Windows Cluster, a dev sandbox VM w/ Visual Studio & all required binaries and a Cloud SQL instance. 
 
     ```bash
     cd terraform-sandbox-setup
     ```
 
-1. Edit `versions.tf` to configure your GCS bucket to store terraform state by changing the value for `bucket`.
-
-    ```bash
-    terraform {
-        ..
-        backend "gcs" {
-            bucket = "contosouniversity-tf"
-            prefix = "terraform/state"
-        }
-        ..
-    }
-    ```
-
 1. (Optional) Examine the `terraform.tfvars` file and update the values as desired.
 
-1. Use terraform to provision the cloud resources.
+1. Within the `terraform-sandbox-setup` directory, initialise your working directory for terraform.
 
     ```bash
-    terraform apply
+    terraform init
     ```
+
+1. Use terraform to provision the cloud resources. This should take ~30min to complete.
+
+    ```bash
+    terraform apply -auto-approve
+    ```
+
+1. Enter the name of your GCP project ID when requested. You can [find this](https://cloud.google.com/resource-manager/docs/creating-managing-projects#identifying_projects) from your Cloud Console.
 
 1. (Optional), you can also use terraform to clean up the cloud resources once you've finished the lab.
 

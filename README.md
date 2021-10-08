@@ -653,7 +653,11 @@ ENTRYPOINT ["/app/ContosoUniversity"]
 In this step you use a Docker [multi-stage build](https://docs.docker.com/develop/develop-images/multistage-build/).  This guarantees that the build environment is always the same.  The output of the `build` stage is a [self-contained](https://docs.microsoft.com/en-us/dotnet/core/deploying/#publish-self-contained) executable that does not require .NET 5 to be installed, further reducing the image size and startup time.  The `runtime` stage copies only the runtime components necessary and sets a default URL to listen on as an environment variable.  The `ENTRYPOINT` is the name of the self-contained executable that was generated in the `build` stage.  
 
 ## **Build and run the container**
-If you have Docker [installed](https://docs.docker.com/docker-for-windows/install/) on your local machine you can build and start the container with the following commands from the solution directory where you created the `Dockerfile`:
+**This step will not work on your sandbox Windows instance**
+
+As we're targetting a Linux runtime within the Dockerfile, you can build and run the container on a Linux VM.
+
+Alternatively, if you have Docker [installed](https://docs.docker.com/docker-for-windows/install/) on your local machine you can build and start the container with the following commands from the solution directory where you created the `Dockerfile`:
 
 ```cmd
 docker build -t contosouniversity:v1 -f Dockerfile .

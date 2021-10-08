@@ -19,10 +19,6 @@ terraform {
   required_providers {
     google = ">= 3.43, <4.0"
   }
-  backend "gcs" {
-  bucket = "contosouniversity-tf"
-  prefix = "terraform/state"
-}
   provider_meta "google" {
     module_name = "blueprints/terraform/terraform-google-vm:compute_instance/v7.1.0"
   }

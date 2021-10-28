@@ -84,6 +84,8 @@ In this section, you will be seeding the database from the dev sandbox created p
     ```bash
     git clone https://github.com/saltysoup/ContosoUniversity
 
+    cd ContosoUniversity
+
     git checkout vm
     ```
 

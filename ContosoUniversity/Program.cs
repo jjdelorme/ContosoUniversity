@@ -1,50 +1,52 @@
-﻿// This application entry point is based on ASP.NET Core new project templates and is included
-// as a starting point for app host configuration.
-// This file may need updated according to the specific scenario of the application being upgraded.
-// For more information on ASP.NET Core hosting, see https://docs.microsoft.com/aspnet/core/fundamentals/host/web-host
+﻿using ContosoUniversity.DAL;
+using Google.Cloud.Logging.Console;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Google.Cloud.Diagnostics.AspNetCore;
+// static void AddSecretConfig(HostBuilderContext context, 
+//     IConfigurationBuilder config) 
+// {
+//     const string secretsPath = "secrets";
+    
+//     var secretFileProvider = context.HostingEnvironment.ContentRootFileProvider
+//         .GetDirectoryContents(secretsPath);
+    
+//     if (secretFileProvider.Exists)
+//         foreach (var secret in secretFileProvider)
+//             config.AddJsonFile(secret.PhysicalPath, false, true);
+// }
 
-namespace ContosoUniversity
+var builder = WebApplication.CreateBuilder(args);
+
+if (builder.Environment.IsProduction()) 
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
+    builder.Logging.AddGoogleFormatLogger();
+}
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration(AddSecretConfig)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    if (webBuilder.GetSetting("ENVIRONMENT") == "Production")
-                    {
-                        webBuilder.UseGoogleDiagnostics();
-                    }
-                    webBuilder.UseStartup<Startup>();
-                });
+// Services
+builder.Services.AddScoped<SchoolContext>(_ => 
+    new SchoolContext(
+        builder.Configuration.GetConnectionString("SchoolContext"))
+);
 
-        private static void AddSecretConfig(HostBuilderContext context, 
-            IConfigurationBuilder config) 
-        {
-            const string secretsPath = "secrets";
-            
-            var secretFileProvider = context.HostingEnvironment.ContentRootFileProvider
-                .GetDirectoryContents(secretsPath);
-            
-            if (secretFileProvider.Exists)
-                foreach (var secret in secretFileProvider)
-                    config.AddJsonFile(secret.PhysicalPath, false, true);
-        }
-    }
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+
+var app = builder.Build();
+
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+try 
+{
+    app.Run();
+}
+catch (Exception e)
+{
+    app.Logger.LogCritical(e, "Unhandled exception");
 }

@@ -1,18 +1,18 @@
 ﻿using ContosoUniversity.DAL;
 using Google.Cloud.Logging.Console;
+using Microsoft.Extensions.Configuration.Json;
 
-// static void AddSecretConfig(HostBuilderContext context, 
-//     IConfigurationBuilder config) 
-// {
-//     const string secretsPath = "secrets";
-    
-//     var secretFileProvider = context.HostingEnvironment.ContentRootFileProvider
-//         .GetDirectoryContents(secretsPath);
-    
-//     if (secretFileProvider.Exists)
-//         foreach (var secret in secretFileProvider)
-//             config.AddJsonFile(secret.PhysicalPath, false, true);
-// }
+static void AddSecretConfig(IConfigurationBuilder config) 
+{
+    const string secretsPath = "secrets";
+
+    var secretFileProvider = config.GetFileProvider()
+        .GetDirectoryContents(secretsPath);
+
+    if (secretFileProvider.Exists)
+        foreach (var secret in secretFileProvider)
+            config.AddJsonFile(secret.PhysicalPath, false, true);
+}
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +20,8 @@ if (builder.Environment.IsProduction())
 {
     builder.Logging.AddGoogleFormatLogger();
 }
+
+AddSecretConfig(builder.Configuration);
 
 // Services
 builder.Services.AddScoped<SchoolContext>(_ => 

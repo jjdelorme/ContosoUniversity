@@ -3,61 +3,10 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>bin\</OutputPath>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Update="Migrations\201411021828194_InitialCreate.Designer.cs">
-      <DependentUpon>201411021828194_InitialCreate.cs</DependentUpon>
-    </Compile>
-    <Compile Update="Migrations\201411021834484_MaxLengthOnNames.Designer.cs">
-      <DependentUpon>201411021834484_MaxLengthOnNames.cs</DependentUpon>
-    </Compile>
-    <Compile Update="Migrations\201411021841373_ComplexDataModel.Designer.cs">
-      <DependentUpon>201411021841373_ComplexDataModel.cs</DependentUpon>
-    </Compile>
-    <Compile Update="Migrations\201411021957458_DepartmentSP.Designer.cs">
-      <DependentUpon>201411021957458_DepartmentSP.cs</DependentUpon>
-    </Compile>
-    <Compile Update="Migrations\201411022009135_RowVersion.Designer.cs">
-      <DependentUpon>201411022009135_RowVersion.cs</DependentUpon>
-    </Compile>
-    <Compile Update="Migrations\201411022351064_Inheritance.Designer.cs">
-      <DependentUpon>201411022351064_Inheritance.cs</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Update="Web.Debug.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </Content>
-    <Content Update="Web.Release.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="App_Data\" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Migrations\201411021828194_InitialCreate.resx">
-      <DependentUpon>201411021828194_InitialCreate.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Migrations\201411021834484_MaxLengthOnNames.resx">
-      <DependentUpon>201411021834484_MaxLengthOnNames.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Migrations\201411021841373_ComplexDataModel.resx">
-      <DependentUpon>201411021841373_ComplexDataModel.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Migrations\201411021957458_DepartmentSP.resx">
-      <DependentUpon>201411021957458_DepartmentSP.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Migrations\201411022009135_RowVersion.resx">
-      <DependentUpon>201411022009135_RowVersion.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Migrations\201411022351064_Inheritance.resx">
-      <DependentUpon>201411022351064_Inheritance.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="bootstrap" Version="3.4.1" />
     <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />

@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Net;
@@ -23,18 +22,18 @@ namespace ContosoUniversity.Controllers
         }
 
         // GET: Department
-        public async Task<ActionResult> Index()
+        public async Task<IActionResult> Index()
         {
             var departments = db.Departments.Include(d => d.Administrator);
             return View(await departments.ToListAsync());
         }
 
         // GET: Department/Details/5
-        public async Task<ActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
-                return new BadRequestResult();
+                return BadRequest();
             }
 
             // Commenting out original code to show how to use a raw SQL query.
@@ -42,17 +41,17 @@ namespace ContosoUniversity.Controllers
 
             // Create and execute raw SQL query.
             string query = "SELECT * FROM Department WHERE DepartmentID = @p0";
-            Department department = await db.Departments.SqlQuery(query, id).SingleOrDefaultAsync();
+            Department department = await db.Departments.FromSqlRaw(query, id).SingleOrDefaultAsync();
 
             if (department == null)
             {
-                return new NotFoundResult();
+                return NotFound();
             }
             return View(department);
         }
 
         // GET: Department/Create
-        public ActionResult Create()
+        public IActionResult Create()
         {
             ViewBag.InstructorID = new SelectList(db.Instructors, "ID", "FullName");
             return View();
@@ -63,13 +62,13 @@ namespace ContosoUniversity.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind("DepartmentID,Name,Budget,StartDate,InstructorID")] Department department)
+        public async Task<IActionResult> Create([Bind("DepartmentID,Name,Budget,StartDate,InstructorID")] Department department)
         {
             if (ModelState.IsValid)
             {
                 db.Departments.Add(department);
                 await db.SaveChangesAsync();
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
 
             ViewBag.InstructorID = new SelectList(db.Instructors, "ID", "FullName", department.InstructorID);
@@ -77,16 +76,16 @@ namespace ContosoUniversity.Controllers
         }
 
         // GET: Department/Edit/5
-        public async Task<ActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {
-                return new BadRequestResult();
+                return BadRequest();
             }
             Department department = await db.Departments.FindAsync(id);
             if (department == null)
             {
-                return new NotFoundResult();
+                return NotFound();
             }
             ViewBag.InstructorID = new SelectList(db.Instructors, "ID", "FullName", department.InstructorID);
             return View(department);
@@ -97,13 +96,13 @@ namespace ContosoUniversity.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int? id, byte[] rowVersion)
+        public async Task<IActionResult> Edit(int? id, byte[] rowVersion)
         {
             string[] fieldsToBind = new string[] { "Name", "Budget", "StartDate", "InstructorID", "RowVersion" };
 
             if (id == null)
             {
-                return new BadRequestResult();
+                return BadRequest();
             }
 
             var departmentToUpdate = await db.Departments.FindAsync(id);
@@ -124,7 +123,7 @@ namespace ContosoUniversity.Controllers
                     db.Entry(departmentToUpdate).OriginalValues["RowVersion"] = rowVersion;
                     await db.SaveChangesAsync();
 
-                    return RedirectToAction("Index");
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException ex)
                 {
@@ -171,20 +170,20 @@ namespace ContosoUniversity.Controllers
         }
 
         // GET: Department/Delete/5
-        public async Task<ActionResult> Delete(int? id, bool? concurrencyError)
+        public async Task<IActionResult> Delete(int? id, bool? concurrencyError)
         {
             if (id == null)
             {
-                return new BadRequestResult();
+                return BadRequest();
             }
             Department department = await db.Departments.FindAsync(id);
             if (department == null)
             {
                 if (concurrencyError.GetValueOrDefault())
                 {
-                    return RedirectToAction("Index");
+                    return RedirectToAction(nameof(Index));
                 }
-                return new NotFoundResult();
+                return NotFound();
             }
 
             if (concurrencyError.GetValueOrDefault())
@@ -203,13 +202,13 @@ namespace ContosoUniversity.Controllers
         // POST: Department/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Delete(Department department)
+        public async Task<IActionResult> Delete(Department department)
         {
             try
             {
                 db.Entry(department).State = EntityState.Deleted;
                 await db.SaveChangesAsync();
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateConcurrencyException)
             {

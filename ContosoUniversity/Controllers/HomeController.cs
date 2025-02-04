@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using ContosoUniversity.DAL;
 using ContosoUniversity.ViewModels;
@@ -16,12 +17,12 @@ namespace ContosoUniversity.Controllers
             this.db = db;
         }
 
-        public ActionResult Index()
+        public IActionResult Index()
         {
             return View();
         }
 
-        public ActionResult About()
+        public IActionResult About()
         {
             // Commenting out LINQ to show how to do the same thing in SQL.
             //IQueryable<EnrollmentDateGroup> = from student in db.Students
@@ -37,11 +38,11 @@ namespace ContosoUniversity.Controllers
                 + "FROM Person "
                 + "WHERE Discriminator = 'Student' "
                 + "GROUP BY EnrollmentDate";
-            IEnumerable<EnrollmentDateGroup> data = db.Database.SqlQuery<EnrollmentDateGroup>(query);
+            IEnumerable<EnrollmentDateGroup> data = db.Database.FromSqlRaw<EnrollmentDateGroup>(query);
 
             return View(data.ToList());
         }
-        public ActionResult Contact()
+        public IActionResult Contact()
         {
             ViewBag.Message = "Your contact page.";
 

@@ -1,7 +1,7 @@
-﻿@model ContosoUniversity.Models.Course
+@model ContosoUniversity.Models.Course
 
 @{
-    ViewBag.Title = "Delete";
+    ViewData["Title"] = "Delete";
 }
 
 <h2>Delete</h2>
@@ -20,15 +20,15 @@
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.CourseID)
+           @Html.DisplayNameFor(model => model.CourseID)
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.CourseID)
+           @Html.DisplayFor(model => model.CourseID)
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.Title)
+           @Html.DisplayNameFor(model => model.Title)
         </dt>
 
         <dd>
@@ -40,17 +40,14 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.Credits)
+           @Html.DisplayFor(model => model.Credits)
         </dd>
 
     </dl>
-
-    @using (Html.BeginForm()) {
-        @Html.AntiForgeryToken()
-
-        <div class="form-actions no-color">
-            <input type="submit" value="Delete" class="btn btn-default" /> |
-            @Html.ActionLink("Back to List", "Index")
-        </div>
-    }
+    
+    <form asp-action="Delete">
+         <input type="hidden" asp-for="CourseID" />
+         <input type="submit" value="Delete" class="btn btn-default" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
 </div>
